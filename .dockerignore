@@ -1,0 +1,15 @@
+raw/
+.venv/
+notebooks/
+tests/
+.git/
+.gitignore
+reports/
+docs/
+deploy/
+scripts/
+**/__pycache__/
+**/.ipynb_checkpoints/
+.pytest_cache/
+*.pem
+*.md

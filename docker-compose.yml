@@ -1,0 +1,11 @@
+# Run with:  docker compose up -d --build   ->  http://localhost (port 80)
+services:
+  aerocast:
+    build: .
+    image: airdemand:latest
+    container_name: airdemand
+    ports:
+      - "80:8501"
+    environment:
+      - PROJECT_COURSE=vcc
+    restart: unless-stopped
