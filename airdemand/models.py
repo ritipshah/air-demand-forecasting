@@ -247,6 +247,10 @@ class BaseModel:
     name = "Base"
     uses_adjustment = True  # False: the model works on the raw series
 
+    def __init__(self, seasonal: str | None = None):
+        """seasonal: "rolling" or "fixed" seasonal indices (None = config default)."""
+        self.seasonal = seasonal
+
     def fit(self, y: pd.Series, freq: str | None = None) -> "BaseModel":
         y = y.astype(float)
         self.freq_ = freq or _freq_code(y.index)
@@ -255,7 +259,9 @@ class BaseModel:
         self.burn_ = 2 * self.init_m_
         self.y_ = y
         m_adj = self.m_ if self.uses_adjustment else 1
-        self.adjuster_ = SeasonalAdjuster(m_adj, window=config.SEASONAL_WINDOW.get(self.freq_)).fit(y)
+        self.seasonal_mode_ = self.seasonal or config.SEASONAL_MODE
+        self.adjuster_ = SeasonalAdjuster(m_adj, window=config.SEASONAL_WINDOW.get(self.freq_),
+                                          mode=self.seasonal_mode_).fit(y)
         x = self.adjuster_.adjust(y).to_numpy()
         self.l0_, self.b0_, self.s0_ = initial_states(x, self.init_m_)
         self.params_ = self._estimate(x)
@@ -277,7 +283,10 @@ class BaseModel:
 
     # --- shared machinery ------------------------------------------------
     def _components(self, run: dict, x: np.ndarray, y: pd.Series) -> pd.DataFrame:
-        factors = self.adjuster_.factors(y.index)
+        # The one-step forecast of y_t is made at t-1, so it is re-seasonalised
+        # with the indices known at t-1 (identical to the fixed indices in v1).
+        ahead = self.adjuster_.forecast_factors(y, extend_index(y.index, 1, self.freq_))[:, 0]
+        factors = np.r_[self.adjuster_.concurrent_factors(y)[:1], ahead[:-1]]
         df = pd.DataFrame({"actual": y.to_numpy(), "adjusted": x,
                            "fitted": run["xhat"] * factors}, index=y.index)
         for key in ("level", "trend", "alpha", "ts", "sigma"):
@@ -288,7 +297,9 @@ class BaseModel:
     def paths(self, y_full: pd.Series, H: int) -> dict:
         """Point forecasts from every origin of y_full, parameters fixed.
 
-        Seasonal indices and parameters come from the training fit only.
+        Parameters come from the training fit only. Seasonal indices are the
+        training-fit indices (fixed mode) or, in rolling mode, re-estimated at
+        each origin from the window ending there — never from later data.
         Returns x (adjusted series), adj (n, H) adjusted-scale forecasts,
         sigma (n,) error scale at each origin and factor (n, H) seasonal
         index of each forecast target.
@@ -301,9 +312,7 @@ class BaseModel:
             sigma = run["sigma"]
         else:
             sigma = ewma_scale(x - run["xhat"], self.s0_, config.AR_HOLT_HYPER["lam"])
-        n = len(x)
-        f_all = self.adjuster_.factors(extend_index(y_full.index, H, self.freq_))
-        factor = np.stack([f_all[np.arange(n) + h] for h in range(1, H + 1)], axis=1)
+        factor = self.adjuster_.forecast_factors(y_full, extend_index(y_full.index, H, self.freq_))
         return {"x": x, "adj": adj, "sigma": sigma, "factor": factor, "run": run}
 
     def quantiles(self, H: int) -> dict:
@@ -491,7 +500,8 @@ class AdaptiveRobustHolt(BaseModel):
     """
     name = "AR-Holt"
 
-    def __init__(self, fix_b: float | None = None, **hyper):
+    def __init__(self, fix_b: float | None = None, seasonal: str | None = None, **hyper):
+        super().__init__(seasonal)
         self.fix_b = fix_b
         self.hyper = {**config.AR_HOLT_HYPER, **hyper}
 

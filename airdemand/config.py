@@ -44,7 +44,8 @@ def current_team() -> dict:
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "raw"
 DATA_DIR = ROOT / "data"
-RESULTS_DIR = ROOT / "results"
+RESULTS_DIR = ROOT / "results"            # default = rolling indices (v2)
+RESULTS_V1_DIR = RESULTS_DIR / "v1_fixed_indices"  # earlier results, fixed indices
 FIGURES_DIR = ROOT / "reports" / "figures"
 
 TSA_RAW_DIR = RAW_DIR / "TsaThroughput" / "data" / "processed" / "tsa" / "throughput"
@@ -76,8 +77,17 @@ AIRPORT_NAMES = {
 # 1 = no seasonality for annual data.
 SEASONAL_PERIOD = {"D": 7, "M": 12, "A": 1}
 
-# Trailing window used to estimate seasonal indices (None = all training data).
+# Window used to estimate seasonal indices (None = all available data).
 SEASONAL_WINDOW = {"D": 26 * 7, "M": None, "A": None}
+
+# How seasonal indices are estimated for the seasonally adjusted models
+# (SES, Holt, DampedHolt, TriggLeachHolt, AR-Holt):
+#   "rolling" (v2, default): re-estimated at every time step / forecast
+#             origin from the window ending there (daily: the 26 weeks up to
+#             the origin; monthly: all data up to the origin).
+#   "fixed"   (v1): estimated once on the trailing window of the training data.
+SEASONAL_MODE = "rolling"
+SEASONAL_MODES = {"rolling": "v2 (rolling indices)", "fixed": "v1 (fixed indices)"}
 
 # Number of recent origins used to calibrate the conformal intervals
 # (None = all available).

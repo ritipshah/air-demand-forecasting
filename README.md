@@ -57,7 +57,8 @@ streamlit run app/streamlit_app.py
 Tests, backtests and the notebook:
 ```bash
 pytest                                       # all tests
-python scripts/run_backtests.py              # re-creates results/ (about a minute)
+python scripts/run_backtests.py              # v2, rolling seasonal indices -> results/ (about a minute)
+python scripts/run_backtests.py --seasonal fixed   # v1, fixed indices -> results/v1_fixed_indices/
 python scripts/build_notebook.py             # re-creates the notebook from its source
 jupyter nbconvert --to notebook --execute --inplace notebooks/ATSA_Analysis.ipynb
 jupyter nbconvert --to html notebooks/ATSA_Analysis.ipynb
@@ -80,6 +81,19 @@ Health check: `curl http://localhost:8501/_stcore/health` returns `ok`. AWS EC2 
 ## Results
 
 <!-- RESULTS:START -->
+**v2 — rolling seasonal indices (default).** The weekday indices are re-estimated at every forecast origin from the 26 weeks before it (monthly: all data up to the origin).
+
+| Experiment | Naive | SeasonalNaive | SES | Holt | DampedHolt | TriggLeachHolt | HoltWinters | AR-Holt |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| A · normal year · All 7 hubs | 11.41 | 7.33 | 6.61 | 6.96 | 6.74 | 7.17 | **6.44** | 6.68 |
+| A · normal year · mean of 7 airports | 13.56 | 9.54 | 8.76 | 9.05 | 8.77 | 9.48 | **8.61** | 8.73 |
+| B · COVID · All 7 hubs | 19.35 | 19.23 | 18.37 | 24.32 | 18.41 | 19.77 | 18.94 | **14.70** |
+| B · COVID · mean of 7 airports | 21.03 | 20.89 | 20.10 | 25.87 | 20.10 | 21.47 | 20.56 | **17.03** |
+| C1 · AirPassengers (monthly) | 16.80 | 8.91 | 6.93 | **4.85** | 4.85 | 5.93 | 5.34 | 4.87 |
+| C2 · Australia (annual) | 12.89 | 12.89 | 12.89 | 8.71 | 8.71 | 9.72 | **7.05** | 9.49 |
+
+**v1 — fixed seasonal indices** (estimated once on the training span; kept in `results/v1_fixed_indices/`).
+
 | Experiment | Naive | SeasonalNaive | SES | Holt | DampedHolt | TriggLeachHolt | HoltWinters | AR-Holt |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | A · normal year · All 7 hubs | 11.41 | 7.33 | 6.68 | 7.03 | 6.76 | 7.25 | **6.44** | 6.79 |
@@ -89,24 +103,43 @@ Health check: `curl http://localhost:8501/_stcore/health` returns `ok`. AWS EC2 
 | C1 · AirPassengers (monthly) | 16.80 | 8.91 | 7.36 | 5.41 | 5.41 | 6.28 | **5.34** | 5.50 |
 | C2 · Australia (annual) | 12.89 | 12.89 | 12.89 | 8.71 | 8.71 | 9.72 | **7.05** | 9.49 |
 
-Mean MAPE (%) over all horizons; **bold** = best in row. Generated from `results/metrics_summary.csv` by `scripts/build_docs.py`.
+Mean MAPE (%) over all horizons; **bold** = best in row. Naive, SeasonalNaive and Holt–Winters work on the raw series, so they are identical in both versions. Generated from `results/` by `scripts/build_docs.py`.
+
+**What changed from v1 to v2 (computed):**
+
+* The seasonally adjusted models got more accurate in 20 of 20 daily comparisons (5 models × 2 experiments × 2 series groups). The median change was -0.54 MAPE points, with larger gains during COVID.
+* During COVID, AR-Holt is best at 6 of 7 airports with rolling indices, against 4 of 7 with fixed indices.
+* **Normal year:** Holt–Winters still wins. On All 7 hubs, AR-Holt trails it by 0.36 points (v1) and 0.24 points (v2), so rolling indices close 32% of the gap. The DM test (h=1) still finds "HoltWinters better" (p = 0.007). Fixed indices therefore explain only part of Holt–Winters' advantage.
+* **Worse in v2:** during COVID, AR-Holt's 95% intervals on All 7 hubs cover 88.2% of outcomes, down from 92.7% in v1. Its 95% Winkler score rises from 169,740 to 189,019, because the intervals are narrower.
+* On AirPassengers (an expanding window for monthly data), AR-Holt goes from 5.50% to 4.87%, and the best model is now Holt (v1: HoltWinters). The annual series has no seasonality and is unchanged.
 <!-- RESULTS:END -->
 
 <!-- KEYNUMBERS:START -->
-* **COVID stress test (All 7 hubs):** AR-Holt MAPE 15.4% vs classic Holt 25.2% (39% lower) and damped Holt 19.8%; best model at 4 of 7 airports.
-* **Normal year (All 7 hubs):** AR-Holt 6.79% vs Holt–Winters 6.44% — the seasonal benchmark wins in calm times (AR-Holt best at 2 of 7 airports).
-* **Ablation (COVID):** damped Holt 19.8% → robust only 18.7% → adaptive only 19.8% → full AR-Holt 15.4%: the two ingredients only pay off together.
+Default version (v2, rolling seasonal indices):
+
+* **COVID stress test (All 7 hubs):** AR-Holt MAPE 14.7%, against 24.3% for classic Holt (40% lower) and 18.4% for damped Holt. It is the best model at 6 of 7 airports.
+* **Normal year (All 7 hubs):** AR-Holt 6.68% against 6.44% for Holt–Winters. The seasonal benchmark wins in calm times; AR-Holt is best at 2 of 7 airports.
+* **Ablation (COVID):** damped Holt 18.4%, robust only 17.5%, adaptive only 18.4%, full AR-Holt 14.7%. The two ingredients only pay off together.
+* **Compared with v1 (fixed indices):** AR-Holt on All 7 hubs was 6.79% (normal year) and 15.4% (COVID) in v1, and is 6.68% and 14.7% in v2.
 <!-- KEYNUMBERS:END -->
 
-In short: AR-Holt is **insurance against shocks**. It is the most accurate method during the COVID
+In short, in both versions, AR-Holt is **insurance against shocks**. It is the most accurate method during the COVID
 collapse and about as good as damped Holt in normal times, where the fully seasonal Holt–Winters
 benchmark is best. Full tables, Diebold–Mariano tests, coverage and the ablation study are in
-`notebooks/ATSA_Analysis.ipynb` (section 12) and in the app's *Model comparison* tab.
+`notebooks/ATSA_Analysis.ipynb` (section 12, with the v1/v2 comparison in 12.8) and in the app's
+*Model comparison* tab, which can show either version.
 
 ## Method overview
 
-1. **Seasonal adjustment.** Multiplicative weekday (or month) indices: the median ratio to a centred
-   moving average, normalised to mean 1. They are removed before Holt and put back afterwards.
+1. **Seasonal adjustment.** Each weekday (or month) gets a multiplicative index: the median ratio to
+   a centred moving average, normalised to mean 1. The indices are removed before Holt and put back
+   afterwards.
+   * In **v2 (the default)** they are re-estimated at every time step from the 26 weeks ending there
+     (for monthly data, all data up to that point). Day t is adjusted with the indices known on day t,
+     and a forecast made at origin t uses the indices estimated at t, with no look-ahead.
+   * In **v1** they were estimated once on the training data and kept fixed.
+   * Both versions treat every seasonally adjusted model the same way (SES, Holt, damped Holt,
+     Trigg–Leach, AR-Holt).
 2. **AR-Holt** on the adjusted series $x_t$, at every step:
 
 $$\hat x_t=\ell_{t-1}+\phi b_{t-1},\qquad e_t=x_t-\hat x_t$$
@@ -134,7 +167,7 @@ $$\hat x_{n+h}=\ell_n+(\phi+\phi^2+\dots+\phi^h)\,b_n$$
 airdemand/            the library: all modelling logic
   config.py           teams, paths, defaults, hyperparameters
   data.py             built-in datasets, CSV upload parsing
-  seasonal.py         multiplicative seasonal adjustment
+  seasonal.py         multiplicative seasonal adjustment (fixed or rolling indices)
   models.py           8 models behind one fit / forecast interface
   intervals.py        locally-adaptive conformal intervals
   evaluation.py       rolling-origin backtest, metrics, Diebold–Mariano
@@ -143,7 +176,8 @@ airdemand/            the library: all modelling logic
 app/streamlit_app.py  the AeroCast dashboard
 scripts/              prepare_data, run_backtests, build_notebook, build_docs
 data/                 processed CSVs (committed)
-results/              backtest outputs (read by the app)
+results/              backtest outputs, v2 rolling indices (read by the app)
+  v1_fixed_indices/   the same outputs with fixed seasonal indices (v1)
 notebooks/            ATSA_Analysis.ipynb (+ HTML export)
 reports/figures/      figures saved by the notebook
 tests/                pytest suite

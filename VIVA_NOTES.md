@@ -8,7 +8,7 @@ Plain-English notes for defending the project in the ATSA and VCC vivas.
 |---|---|
 | `airdemand/config.py` | One place for settings: both teams, file paths, seasonal periods, AR-Holt's fixed hyperparameters, capacity-planner assumptions. `PROJECT_COURSE` picks the team shown in the app. |
 | `airdemand/data.py` | Loads the four processed datasets as tidy time series. It also reads a user's uploaded CSV, detects whether it is daily/weekly/monthly/quarterly/annual, and returns friendly error messages. |
-| `airdemand/seasonal.py` | Removes the weekday (or monthly) pattern before Holt and puts it back afterwards. Each index is the *median* ratio of the data to a centred moving average. |
+| `airdemand/seasonal.py` | Removes the weekday (or monthly) pattern before Holt and puts it back afterwards. Each index is the *median* ratio of the data to a centred moving average. In the default "rolling" mode (v2) the indices are re-estimated every day from the previous 26 weeks; in "fixed" mode (v1) they are estimated once. |
 | `airdemand/models.py` | All 8 models with the same `fit` / `forecast` interface. SES, Holt, damped Holt, Trigg–Leach and AR-Holt are written from scratch; Holt-Winters wraps statsmodels. `MODELS` is the registry the app and scripts loop over. |
 | `airdemand/intervals.py` | Prediction intervals. It checks how wrong each model was in the past (scaled by its error level at the time) and uses those empirical quantiles. |
 | `airdemand/evaluation.py` | The backtest: fit once, roll forward through the test period, forecast from every day. Also the metrics (MAE, RMSE, MAPE, sMAPE, MASE, coverage, Winkler) and the Diebold–Mariano test. |
@@ -16,7 +16,7 @@ Plain-English notes for defending the project in the ATSA and VCC vivas.
 | `airdemand/capacity.py` | Forecast → resources. Passengers per hour → security lanes → officers; demand → seats → flights. |
 | `app/streamlit_app.py` | The AeroCast dashboard. It has six tabs and only displays results; all the maths lives in `airdemand/`. |
 | `scripts/prepare_data.py` | Raw TSA hourly files → daily totals per airport (missing days imputed and flagged), ALL7, and hourly profiles. Also processes the two classic datasets. |
-| `scripts/run_backtests.py` | Runs experiments A, B, C1, C2 and the ablation, and writes the CSVs in `results/`. |
+| `scripts/run_backtests.py` | Runs experiments A, B, C1, C2 and the ablation and writes the CSVs. By default it uses rolling indices and writes `results/`; with `--seasonal fixed` it uses fixed indices and writes `results/v1_fixed_indices/`. |
 | `scripts/build_notebook.py` | The source of the ATSA notebook (it writes `notebooks/ATSA_Analysis.ipynb`). |
 | `scripts/build_docs.py` | Writes every result number into README and these notes, so no number is typed by hand. |
 | `tests/` | pytest checks covering the seasonal round trip, Holt vs statsmodels, nesting, no look-ahead, ordered intervals, the level-shift response, and the capacity maths. |
@@ -61,33 +61,55 @@ Real numbers from the All-7-hubs model (fitted on the full history), for
 **Wednesday 15 February 2023** — a day the model flagged as an outlier. All values are on the
 seasonally adjusted scale (passengers ÷ that weekday's index).
 
-Fitted parameters: a = -0.985, b = 0.693, β = 0.0101, φ = 0.934;
+Fitted parameters: a = -0.800, b = 0.725, β = 0.0000, φ = 0.872;
 fixed k = 2.5, λ = 0.1, τ = 0.5.
 
 | Step | Formula | Value |
 |---|---|---|
-| State the evening before | ℓ, b, σ, TS | ℓ = 407,714, b = 17.7, σ = 16,209, TS = +0.163 |
-| 1. One-step forecast | x̂ = ℓ + φ·b | 407,714 + 0.934 × 17.7 = **407,731** |
-| 2. Actual (adjusted) and error | e = x − x̂ | 463,424 − 407,731 = **55,694** |
-| 3. Regime | \|TS\| = 0.163 vs τ = 0.5 | **calm** |
-| 4. How unusual? | z = e / σ | 55,694 / 16,209 = **+3.44** (beyond ±2.5 → outlier) |
-| 5. Clip the error | ẽ = σ·clip(z, −k, k) | 16,209 × +2.50 = **40,523** |
-| 6. Step size | α = expit(a + b·\|TS\|) | expit(-0.985 + 0.693 × 0.163) = **0.295** |
-| 7. New level | ℓ = x̂ + α·ẽ | 407,731 + 0.295 × 40,523 = **419,682** |
-| 8. New trend | b = φ·b + α·β·ẽ | **137.6** |
-| 9. New error scale | σ = λ\|ẽ\| + (1−λ)σ | **18,641** |
+| State the evening before | ℓ, b, σ, TS | ℓ = 404,154, b = 0.0, σ = 19,292, TS = -0.004 |
+| 1. One-step forecast | x̂ = ℓ + φ·b | 404,154 + 0.872 × 0.0 = **404,154** |
+| 2. Actual (adjusted) and error | e = x − x̂ | 458,007 − 404,154 = **53,853** |
+| 3. Regime | \|TS\| = 0.004 vs τ = 0.5 | **calm** |
+| 4. How unusual? | z = e / σ | 53,853 / 19,292 = **+2.79** (beyond ±2.5 → outlier) |
+| 5. Clip the error | ẽ = σ·clip(z, −k, k) | 19,292 × +2.50 = **48,230** |
+| 6. Step size | α = expit(a + b·\|TS\|) | expit(-0.800 + 0.725 × 0.004) = **0.311** |
+| 7. New level | ℓ = x̂ + α·ẽ | 404,154 + 0.311 × 48,230 = **419,129** |
+| 8. New trend | b = φ·b + α·β·ẽ | **0.5** |
+| 9. New error scale | σ = λ\|ẽ\| + (1−λ)σ | **22,186** |
 
 **Why it matters:** without clipping (plain damped Holt with the same α) the level would have moved to
-424,157 instead of 419,682 — a 1.1% jump caused by a
+420,875 instead of 419,129 — a 0.4% jump caused by a
 single unusual day, which would have spoiled the next days' forecasts.
 <!-- WORKED:END -->
+
+### Two versions: fixed (v1) and rolling (v2) seasonal indices
+
+* **v1** estimated the weekday indices once, on the last 26 training weeks, and froze them. Holt–Winters
+  won the normal year, and our explanation was that its seasonal pattern keeps updating while ours
+  could not.
+* **v2** tests that explanation. At every forecast origin it re-estimates the indices from the 26
+  weeks before that origin, and applies this to all seasonally adjusted models alike. It is now the
+  default; the v1 results are kept for comparison.
+
+<!-- VERSIONS:START -->
+**What changed from v1 to v2 (computed):**
+
+* The seasonally adjusted models got more accurate in 20 of 20 daily comparisons (5 models × 2 experiments × 2 series groups). The median change was -0.54 MAPE points, with larger gains during COVID.
+* During COVID, AR-Holt is best at 6 of 7 airports with rolling indices, against 4 of 7 with fixed indices.
+* **Normal year:** Holt–Winters still wins. On All 7 hubs, AR-Holt trails it by 0.36 points (v1) and 0.24 points (v2), so rolling indices close 32% of the gap. The DM test (h=1) still finds "HoltWinters better" (p = 0.007). Fixed indices therefore explain only part of Holt–Winters' advantage.
+* **Worse in v2:** during COVID, AR-Holt's 95% intervals on All 7 hubs cover 88.2% of outcomes, down from 92.7% in v1. Its 95% Winkler score rises from 169,740 to 189,019, because the intervals are narrower.
+* On AirPassengers (an expanding window for monthly data), AR-Holt goes from 5.50% to 4.87%, and the best model is now Holt (v1: HoltWinters). The annual series has no seasonality and is unchanged.
+<!-- VERSIONS:END -->
 
 ### Headline results (generated)
 
 <!-- KEYNUMBERS:START -->
-* **COVID stress test (All 7 hubs):** AR-Holt MAPE 15.4% vs classic Holt 25.2% (39% lower) and damped Holt 19.8%; best model at 4 of 7 airports.
-* **Normal year (All 7 hubs):** AR-Holt 6.79% vs Holt–Winters 6.44% — the seasonal benchmark wins in calm times (AR-Holt best at 2 of 7 airports).
-* **Ablation (COVID):** damped Holt 19.8% → robust only 18.7% → adaptive only 19.8% → full AR-Holt 15.4%: the two ingredients only pay off together.
+Default version (v2, rolling seasonal indices):
+
+* **COVID stress test (All 7 hubs):** AR-Holt MAPE 14.7%, against 24.3% for classic Holt (40% lower) and 18.4% for damped Holt. It is the best model at 6 of 7 airports.
+* **Normal year (All 7 hubs):** AR-Holt 6.68% against 6.44% for Holt–Winters. The seasonal benchmark wins in calm times; AR-Holt is best at 2 of 7 airports.
+* **Ablation (COVID):** damped Holt 18.4%, robust only 17.5%, adaptive only 18.4%, full AR-Holt 14.7%. The two ingredients only pay off together.
+* **Compared with v1 (fixed indices):** AR-Holt on All 7 hubs was 6.79% (normal year) and 15.4% (COVID) in v1, and is 6.68% and 14.7% in v2.
 <!-- KEYNUMBERS:END -->
 
 ## 3. Likely viva questions
@@ -99,6 +121,11 @@ single unusual day, which would have spoiled the next days' forecasts.
    raw daily data, it would read every Friday peak as a jump in level. Dividing by multiplicative
    weekday indices gives a series with only level, trend and noise. We forecast that series and
    then multiply the weekday pattern back in.
+
+   *Follow-up: "fixed or rolling indices?"* By default (v2) they are re-estimated at every origin
+   from the 26 weeks before it, because the weekday mix drifts (notebook §4.2 heatmap). There is no
+   look-ahead: a unit test checks that row t of the rolling indices equals a fresh fit on only the
+   26 weeks ending at t.
 
 2. **Why multiplicative and why the median?**
    The weekday swing is proportional to the level: during COVID it shrank along with traffic, so a
@@ -178,9 +205,17 @@ single unusual day, which would have spoiled the next days' forecasts.
     complementary.
 
 16. **Where does AR-Holt lose, and why?**
-    In the normal year Holt–Winters wins. It updates the weekday pattern every day, while our seasonal
-    indices are fixed from the last 26 training weeks. On short annual data (Australia) there are no
-    shocks to adapt to and few errors to calibrate intervals with. We report these results as they are.
+    * **The normal year.** Holt–Winters wins. In v1 we blamed our frozen seasonal indices, so v2
+      re-estimates them at every origin. That narrows the gap but does not close it, and Holt–Winters
+      stays significantly better (the numbers are above). A likely remaining reason: Holt–Winters
+      updates each weekday factor every day with a fitted smoothing weight, while our indices are
+      26-week medians, which are robust but slow.
+    * **COVID intervals.** With rolling indices, AR-Holt's 95% intervals under-cover more during
+      COVID, because they are narrower.
+    * **Short annual data (Australia).** There are no shocks to adapt to, and few errors to calibrate
+      intervals with.
+
+    We report all of these results as they are.
 
 ### VCC (cloud and containers)
 

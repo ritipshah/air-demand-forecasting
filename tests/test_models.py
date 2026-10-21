@@ -22,6 +22,47 @@ def test_seasonal_round_trip(daily_series, monthly_series):
         assert abs(sa.indices_.mean() - 1) < 1e-12  # normalised to mean 1
 
 
+def test_rolling_round_trip(daily_series, monthly_series):
+    for y, m, w in [(daily_series, 7, 26 * 7), (monthly_series, 12, None)]:
+        sa = SeasonalAdjuster(m, window=w, mode="rolling").fit(y)
+        back = sa.readjust_from(y, sa.adjust(y))
+        np.testing.assert_allclose(back.to_numpy(), y.to_numpy(), rtol=1e-12)
+
+
+@pytest.mark.parametrize("which,m,window", [("daily_series", 7, 26 * 7), ("monthly_series", 12, None)])
+def test_rolling_indices_equal_refit_on_window_before_origin(which, m, window, request):
+    """Row t of the rolling indices = a fresh fit on ONLY the window ending at t."""
+    y = request.getfixturevalue(which)
+    S = SeasonalAdjuster(m, window=window, mode="rolling").origin_indices(y)
+    for t in (4 * m - 1, len(y) // 2, len(y) - 1):
+        past = y.iloc[:t + 1]
+        refit = SeasonalAdjuster(m, window=window).fit(past).indices_
+        np.testing.assert_allclose(S[t], refit, rtol=1e-12)
+        assert abs(S[t].mean() - 1) < 1e-12
+
+
+def test_rolling_indices_use_no_future_data(daily_series):
+    sa = SeasonalAdjuster(7, window=26 * 7, mode="rolling")
+    t = 300
+    changed = daily_series.copy()
+    changed.iloc[t + 1:] *= np.linspace(0.5, 2.0, len(changed) - t - 1)
+    np.testing.assert_allclose(sa.origin_indices(daily_series)[:t + 1],
+                               sa.origin_indices(changed)[:t + 1], rtol=1e-12)
+
+
+def test_rolling_and_fixed_agree_at_the_last_training_origin(daily_series):
+    """At the first backtest origin both versions use the same 26 weeks."""
+    train = daily_series[:"2024-01-31"]
+    fixed = AdaptiveRobustHolt(seasonal="fixed").fit(train, freq="D")
+    rolling = AdaptiveRobustHolt(seasonal="rolling").fit(train, freq="D")
+    t = len(train) - 1
+    np.testing.assert_allclose(fixed.paths(daily_series, 7)["factor"][t],
+                               rolling.paths(daily_series, 7)["factor"][t], rtol=1e-12)
+    # ...but later origins re-estimate the indices in the rolling version only
+    assert not np.allclose(fixed.paths(daily_series, 7)["factor"][t + 60],
+                           rolling.paths(daily_series, 7)["factor"][t + 60])
+
+
 def test_seasonal_indices_recover_pattern(daily_series):
     sa = SeasonalAdjuster(7).fit(daily_series)
     by_day = sa.index_table(daily_series.index)
@@ -63,7 +104,7 @@ def test_holt_winters_roll_forward_equals_refit(monthly_series):
 def test_ar_holt_nests_damped_holt(daily_series):
     damped = DampedHolt().fit(daily_series, freq="D")
     p = damped.params_
-    ar = AdaptiveRobustHolt(fix_b=0.0, k=np.inf).fit(daily_series, freq="D")
+    ar = AdaptiveRobustHolt(fix_b=0.0, k=np.inf).fit(daily_series, freq="D")  # rolling indices (default)
     # Put DampedHolt's parameters into AR-Holt: a = logit(alpha).
     ar.params_.update({"a": math.log(p["alpha"] / (1 - p["alpha"])), "b": 0.0,
                        "beta": p["beta"], "phi": p["phi"]})
@@ -76,10 +117,11 @@ def test_ar_holt_nests_damped_holt(daily_series):
 
 
 # 4. No look-ahead leakage ----------------------------------------------------
+@pytest.mark.parametrize("seasonal", ["rolling", "fixed"])
 @pytest.mark.parametrize("name", list(MODELS))
-def test_no_lookahead(name, daily_series):
+def test_no_lookahead(name, seasonal, daily_series):
     train = daily_series[:"2024-01-31"]
-    model = MODELS[name]().fit(train, freq="D")
+    model = MODELS[name](seasonal=seasonal).fit(train, freq="D")
     a = model.interval_paths(daily_series, 7)
     origin = len(train) + 30
     changed = daily_series.copy()
@@ -90,13 +132,14 @@ def test_no_lookahead(name, daily_series):
 
 
 # 5. Finite forecasts, ordered intervals -------------------------------------
+@pytest.mark.parametrize("seasonal", ["rolling", "fixed"])
 @pytest.mark.parametrize("name", list(MODELS))
 @pytest.mark.parametrize("which,freq,h", [("daily_series", "D", 14),
                                           ("monthly_series", "M", 24),
                                           ("annual_series", "A", 10)])
-def test_forecasts_finite_and_ordered(name, which, freq, h, request):
+def test_forecasts_finite_and_ordered(name, which, freq, h, seasonal, request):
     y = request.getfixturevalue(which)
-    fc = MODELS[name]().fit(y, freq=freq).forecast(h)
+    fc = MODELS[name](seasonal=seasonal).fit(y, freq=freq).forecast(h)
     assert len(fc) == h
     assert np.isfinite(fc.to_numpy()).all()
     assert (fc["lo95"] <= fc["lo80"] + 1e-9).all()

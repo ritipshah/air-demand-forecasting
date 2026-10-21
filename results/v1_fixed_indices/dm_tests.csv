@@ -1,0 +1,505 @@
+experiment,series,h,loss,model,vs,n,mean_loss_diff,dm_stat,p_value,verdict
+A,ATL,1,squared,AR-Holt,Naive,365,-1.18158e+08,-10.67,2.61973e-23,AR-Holt better
+A,ATL,1,absolute,AR-Holt,Naive,365,-5959.41,-13.166,1.19942e-32,AR-Holt better
+A,ATL,1,squared,AR-Holt,SeasonalNaive,365,-4.19516e+07,-3.22503,0.00137357,AR-Holt better
+A,ATL,1,absolute,AR-Holt,SeasonalNaive,365,-2060.7,-6.12287,2.38154e-09,AR-Holt better
+A,ATL,1,squared,AR-Holt,SES,365,-190585,-0.158398,0.874231,no significant difference
+A,ATL,1,absolute,AR-Holt,SES,365,-87.8032,-1.7137,0.0874359,no significant difference
+A,ATL,1,squared,AR-Holt,Holt,365,-786214,-0.633168,0.527021,no significant difference
+A,ATL,1,absolute,AR-Holt,Holt,365,-93.2254,-1.80345,0.0721451,no significant difference
+A,ATL,1,squared,AR-Holt,DampedHolt,365,-191000,-0.158683,0.874007,no significant difference
+A,ATL,1,absolute,AR-Holt,DampedHolt,365,-87.6639,-1.71107,0.0879208,no significant difference
+A,ATL,1,squared,AR-Holt,TriggLeachHolt,365,-1.5174e+07,-3.78196,0.000181827,AR-Holt better
+A,ATL,1,absolute,AR-Holt,TriggLeachHolt,365,-499.738,-4.13676,4.37846e-05,AR-Holt better
+A,ATL,1,squared,AR-Holt,HoltWinters,365,3.68273e+06,2.06184,0.0399319,HoltWinters better
+A,ATL,1,absolute,AR-Holt,HoltWinters,365,-46.2721,-0.477093,0.633583,no significant difference
+A,ATL,7,squared,AR-Holt,Naive,359,-1.95874e+07,-1.86266,0.0633294,no significant difference
+A,ATL,7,absolute,AR-Holt,Naive,359,-603.62,-1.86895,0.0624463,no significant difference
+A,ATL,7,squared,AR-Holt,SeasonalNaive,359,-1.95874e+07,-1.86266,0.0633294,no significant difference
+A,ATL,7,absolute,AR-Holt,SeasonalNaive,359,-603.62,-1.86895,0.0624463,no significant difference
+A,ATL,7,squared,AR-Holt,SES,359,-603845,-0.37263,0.709645,no significant difference
+A,ATL,7,absolute,AR-Holt,SES,359,-79.0858,-1.05119,0.293881,no significant difference
+A,ATL,7,squared,AR-Holt,Holt,359,-3.91823e+06,-2.77332,0.00583928,AR-Holt better
+A,ATL,7,absolute,AR-Holt,Holt,359,-198.133,-2.44744,0.0148674,AR-Holt better
+A,ATL,7,squared,AR-Holt,DampedHolt,359,-605305,-0.373973,0.708646,no significant difference
+A,ATL,7,absolute,AR-Holt,DampedHolt,359,-79.1483,-1.05207,0.293475,no significant difference
+A,ATL,7,squared,AR-Holt,TriggLeachHolt,359,-1.93382e+07,-3.62846,0.000326589,AR-Holt better
+A,ATL,7,absolute,AR-Holt,TriggLeachHolt,359,-697.126,-3.66102,0.000289063,AR-Holt better
+A,ATL,7,squared,AR-Holt,HoltWinters,359,655255,0.398248,0.690684,no significant difference
+A,ATL,7,absolute,AR-Holt,HoltWinters,359,-104.896,-1.20603,0.228602,no significant difference
+A,DFW,1,squared,AR-Holt,Naive,365,-7.79444e+07,-8.93971,1.9928e-17,AR-Holt better
+A,DFW,1,absolute,AR-Holt,Naive,365,-4037.51,-11.2261,2.58914e-25,AR-Holt better
+A,DFW,1,squared,AR-Holt,SeasonalNaive,365,-1.82012e+07,-1.80848,0.0713576,no significant difference
+A,DFW,1,absolute,AR-Holt,SeasonalNaive,365,-964.962,-3.21278,0.00143179,AR-Holt better
+A,DFW,1,squared,AR-Holt,SES,365,-201855,-0.143311,0.886124,no significant difference
+A,DFW,1,absolute,AR-Holt,SES,365,-4.55024,-0.0754026,0.939936,no significant difference
+A,DFW,1,squared,AR-Holt,Holt,365,-478106,-0.33425,0.738384,no significant difference
+A,DFW,1,absolute,AR-Holt,Holt,365,-21.3394,-0.35255,0.72463,no significant difference
+A,DFW,1,squared,AR-Holt,DampedHolt,365,-201817,-0.143286,0.886144,no significant difference
+A,DFW,1,absolute,AR-Holt,DampedHolt,365,-4.54742,-0.0753558,0.939973,no significant difference
+A,DFW,1,squared,AR-Holt,TriggLeachHolt,365,-5.39163e+06,-2.43341,0.0154378,AR-Holt better
+A,DFW,1,absolute,AR-Holt,TriggLeachHolt,365,-265.08,-2.84137,0.00474482,AR-Holt better
+A,DFW,1,squared,AR-Holt,HoltWinters,365,2.14723e+06,0.897711,0.369933,no significant difference
+A,DFW,1,absolute,AR-Holt,HoltWinters,365,26.6904,0.244923,0.806654,no significant difference
+A,DFW,7,squared,AR-Holt,Naive,359,-1.34084e+07,-1.31268,0.190132,no significant difference
+A,DFW,7,absolute,AR-Holt,Naive,359,-515.92,-1.60538,0.109291,no significant difference
+A,DFW,7,squared,AR-Holt,SeasonalNaive,359,-1.34084e+07,-1.31268,0.190132,no significant difference
+A,DFW,7,absolute,AR-Holt,SeasonalNaive,359,-515.92,-1.60538,0.109291,no significant difference
+A,DFW,7,squared,AR-Holt,SES,359,-2.06089e+06,-1.57604,0.115899,no significant difference
+A,DFW,7,absolute,AR-Holt,SES,359,-140.123,-2.05647,0.040462,AR-Holt better
+A,DFW,7,squared,AR-Holt,Holt,359,-2.97446e+06,-2.06738,0.0394162,AR-Holt better
+A,DFW,7,absolute,AR-Holt,Holt,359,-189.093,-2.6201,0.00916453,AR-Holt better
+A,DFW,7,squared,AR-Holt,DampedHolt,359,-2.06092e+06,-1.57609,0.115888,no significant difference
+A,DFW,7,absolute,AR-Holt,DampedHolt,359,-140.124,-2.05651,0.0404579,AR-Holt better
+A,DFW,7,squared,AR-Holt,TriggLeachHolt,359,-9.29423e+06,-2.87433,0.00429064,AR-Holt better
+A,DFW,7,absolute,AR-Holt,TriggLeachHolt,359,-466.117,-3.02491,0.00266674,AR-Holt better
+A,DFW,7,squared,AR-Holt,HoltWinters,359,-1.04669e+06,-0.516156,0.606064,no significant difference
+A,DFW,7,absolute,AR-Holt,HoltWinters,359,-149.448,-1.5068,0.132744,no significant difference
+A,DEN,1,squared,AR-Holt,Naive,365,-1.05737e+08,-10.4709,1.3296e-22,AR-Holt better
+A,DEN,1,absolute,AR-Holt,Naive,365,-5230.26,-12.4936,4.72087e-30,AR-Holt better
+A,DEN,1,squared,AR-Holt,SeasonalNaive,365,-2.7057e+07,-3.46208,0.000599753,AR-Holt better
+A,DEN,1,absolute,AR-Holt,SeasonalNaive,365,-1249.4,-4.12593,4.57998e-05,AR-Holt better
+A,DEN,1,squared,AR-Holt,SES,365,-146686,-0.113396,0.909779,no significant difference
+A,DEN,1,absolute,AR-Holt,SES,365,-34.6785,-0.814892,0.415667,no significant difference
+A,DEN,1,squared,AR-Holt,Holt,365,-1.26832e+06,-0.879906,0.379491,no significant difference
+A,DEN,1,absolute,AR-Holt,Holt,365,-73.3148,-1.56602,0.118213,no significant difference
+A,DEN,1,squared,AR-Holt,DampedHolt,365,-146708,-0.113402,0.909775,no significant difference
+A,DEN,1,absolute,AR-Holt,DampedHolt,365,-34.6668,-0.814597,0.415835,no significant difference
+A,DEN,1,squared,AR-Holt,TriggLeachHolt,365,-1.52072e+07,-2.67589,0.0077898,AR-Holt better
+A,DEN,1,absolute,AR-Holt,TriggLeachHolt,365,-502.506,-3.13369,0.0018663,AR-Holt better
+A,DEN,1,squared,AR-Holt,HoltWinters,365,4.14539e+06,2.20216,0.0282807,HoltWinters better
+A,DEN,1,absolute,AR-Holt,HoltWinters,365,218.502,1.91655,0.056078,no significant difference
+A,DEN,7,squared,AR-Holt,Naive,359,-4.83613e+06,-0.570292,0.568837,no significant difference
+A,DEN,7,absolute,AR-Holt,Naive,359,104.568,0.33057,0.741163,no significant difference
+A,DEN,7,squared,AR-Holt,SeasonalNaive,359,-4.83613e+06,-0.570292,0.568837,no significant difference
+A,DEN,7,absolute,AR-Holt,SeasonalNaive,359,104.568,0.33057,0.741163,no significant difference
+A,DEN,7,squared,AR-Holt,SES,359,-733329,-0.560232,0.575671,no significant difference
+A,DEN,7,absolute,AR-Holt,SES,359,-44.7589,-0.690407,0.490386,no significant difference
+A,DEN,7,squared,AR-Holt,Holt,359,-6.45564e+06,-3.13659,0.00185082,AR-Holt better
+A,DEN,7,absolute,AR-Holt,Holt,359,-273.679,-2.88306,0.00417616,AR-Holt better
+A,DEN,7,squared,AR-Holt,DampedHolt,359,-732965,-0.559924,0.575881,no significant difference
+A,DEN,7,absolute,AR-Holt,DampedHolt,359,-44.7367,-0.690073,0.490596,no significant difference
+A,DEN,7,squared,AR-Holt,TriggLeachHolt,359,-3.97797e+07,-3.69799,0.000251389,AR-Holt better
+A,DEN,7,absolute,AR-Holt,TriggLeachHolt,359,-1541.2,-4.3991,1.4358e-05,AR-Holt better
+A,DEN,7,squared,AR-Holt,HoltWinters,359,1.69764e+06,0.838697,0.402199,no significant difference
+A,DEN,7,absolute,AR-Holt,HoltWinters,359,95.0304,0.99475,0.32053,no significant difference
+A,ORD,1,squared,AR-Holt,Naive,365,-8.33569e+07,-9.0166,1.12468e-17,AR-Holt better
+A,ORD,1,absolute,AR-Holt,Naive,365,-4014.48,-9.95425,8.34645e-21,AR-Holt better
+A,ORD,1,squared,AR-Holt,SeasonalNaive,365,-2.13544e+07,-2.48866,0.0132689,AR-Holt better
+A,ORD,1,absolute,AR-Holt,SeasonalNaive,365,-794.702,-2.43737,0.0152726,AR-Holt better
+A,ORD,1,squared,AR-Holt,SES,365,-774485,-0.557328,0.577646,no significant difference
+A,ORD,1,absolute,AR-Holt,SES,365,-37.7902,-0.573121,0.566917,no significant difference
+A,ORD,1,squared,AR-Holt,Holt,365,-1.17291e+06,-0.819097,0.413267,no significant difference
+A,ORD,1,absolute,AR-Holt,Holt,365,-46.8765,-0.727703,0.467263,no significant difference
+A,ORD,1,squared,AR-Holt,DampedHolt,365,-774320,-0.557179,0.577747,no significant difference
+A,ORD,1,absolute,AR-Holt,DampedHolt,365,-37.7773,-0.572984,0.567009,no significant difference
+A,ORD,1,squared,AR-Holt,TriggLeachHolt,365,-4.11839e+06,-1.41649,0.157487,no significant difference
+A,ORD,1,absolute,AR-Holt,TriggLeachHolt,365,-58.2435,-0.514971,0.606886,no significant difference
+A,ORD,1,squared,AR-Holt,HoltWinters,365,1.50543e+07,4.52734,8.10373e-06,HoltWinters better
+A,ORD,1,absolute,AR-Holt,HoltWinters,365,1003.31,5.48745,7.6535e-08,HoltWinters better
+A,ORD,7,squared,AR-Holt,Naive,359,-1.65307e+06,-0.245711,0.806047,no significant difference
+A,ORD,7,absolute,AR-Holt,Naive,359,-46.0998,-0.195998,0.844723,no significant difference
+A,ORD,7,squared,AR-Holt,SeasonalNaive,359,-1.65307e+06,-0.245711,0.806047,no significant difference
+A,ORD,7,absolute,AR-Holt,SeasonalNaive,359,-46.0998,-0.195998,0.844723,no significant difference
+A,ORD,7,squared,AR-Holt,SES,359,-3.34163e+06,-2.47928,0.0136245,AR-Holt better
+A,ORD,7,absolute,AR-Holt,SES,359,-219.337,-3.23561,0.00132693,AR-Holt better
+A,ORD,7,squared,AR-Holt,Holt,359,-5.54346e+06,-3.87662,0.000125988,AR-Holt better
+A,ORD,7,absolute,AR-Holt,Holt,359,-312.471,-4.34824,1.79134e-05,AR-Holt better
+A,ORD,7,squared,AR-Holt,DampedHolt,359,-3.33988e+06,-2.47875,0.0136445,AR-Holt better
+A,ORD,7,absolute,AR-Holt,DampedHolt,359,-219.26,-3.23484,0.00133046,AR-Holt better
+A,ORD,7,squared,AR-Holt,TriggLeachHolt,359,-1.32807e+07,-3.91678,0.000107471,AR-Holt better
+A,ORD,7,absolute,AR-Holt,TriggLeachHolt,359,-629.075,-4.51125,8.7507e-06,AR-Holt better
+A,ORD,7,squared,AR-Holt,HoltWinters,359,2.46714e+06,1.21576,0.224878,no significant difference
+A,ORD,7,absolute,AR-Holt,HoltWinters,359,59.3193,0.499928,0.617433,no significant difference
+A,LAX,1,squared,AR-Holt,Naive,365,-1.09167e+08,-10.8684,5.11265e-24,AR-Holt better
+A,LAX,1,absolute,AR-Holt,Naive,365,-5403.98,-14.7236,7.99299e-39,AR-Holt better
+A,LAX,1,squared,AR-Holt,SeasonalNaive,365,-3.23091e+07,-3.88963,0.000119347,AR-Holt better
+A,LAX,1,absolute,AR-Holt,SeasonalNaive,365,-1490.19,-4.61046,5.56986e-06,AR-Holt better
+A,LAX,1,squared,AR-Holt,SES,365,-2.74052e+06,-2.73283,0.0065857,AR-Holt better
+A,LAX,1,absolute,AR-Holt,SES,365,-210.788,-3.01057,0.0027895,AR-Holt better
+A,LAX,1,squared,AR-Holt,Holt,365,-3.76612e+06,-3.60223,0.00035932,AR-Holt better
+A,LAX,1,absolute,AR-Holt,Holt,365,-245.427,-3.41473,0.000710427,AR-Holt better
+A,LAX,1,squared,AR-Holt,DampedHolt,365,-2.73917e+06,-2.73184,0.00660501,AR-Holt better
+A,LAX,1,absolute,AR-Holt,DampedHolt,365,-210.73,-3.01005,0.00279419,AR-Holt better
+A,LAX,1,squared,AR-Holt,TriggLeachHolt,365,-6.56147e+06,-2.58066,0.010252,AR-Holt better
+A,LAX,1,absolute,AR-Holt,TriggLeachHolt,365,-407.763,-3.3833,0.000794102,AR-Holt better
+A,LAX,1,squared,AR-Holt,HoltWinters,365,2.48411e+06,1.25662,0.209699,no significant difference
+A,LAX,1,absolute,AR-Holt,HoltWinters,365,91.3079,0.716223,0.474313,no significant difference
+A,LAX,7,squared,AR-Holt,Naive,359,-1.33116e+07,-2.6275,0.00897156,AR-Holt better
+A,LAX,7,absolute,AR-Holt,Naive,359,-492.288,-2.21471,0.0274089,AR-Holt better
+A,LAX,7,squared,AR-Holt,SeasonalNaive,359,-1.33116e+07,-2.6275,0.00897156,AR-Holt better
+A,LAX,7,absolute,AR-Holt,SeasonalNaive,359,-492.288,-2.21471,0.0274089,AR-Holt better
+A,LAX,7,squared,AR-Holt,SES,359,-1.76431e+06,-1.0052,0.315481,no significant difference
+A,LAX,7,absolute,AR-Holt,SES,359,-176.826,-1.85127,0.0649536,no significant difference
+A,LAX,7,squared,AR-Holt,Holt,359,-7.60715e+06,-3.89394,0.000117663,AR-Holt better
+A,LAX,7,absolute,AR-Holt,Holt,359,-495.781,-4.29082,2.29374e-05,AR-Holt better
+A,LAX,7,squared,AR-Holt,DampedHolt,359,-1.76428e+06,-1.00505,0.31555,no significant difference
+A,LAX,7,absolute,AR-Holt,DampedHolt,359,-176.829,-1.85128,0.0649531,no significant difference
+A,LAX,7,squared,AR-Holt,TriggLeachHolt,359,-9.57601e+06,-3.10226,0.00207308,AR-Holt better
+A,LAX,7,absolute,AR-Holt,TriggLeachHolt,359,-576.048,-3.67747,0.000271686,AR-Holt better
+A,LAX,7,squared,AR-Holt,HoltWinters,359,-404862,-0.219103,0.826694,no significant difference
+A,LAX,7,absolute,AR-Holt,HoltWinters,359,-105.868,-1.00762,0.314317,no significant difference
+A,JFK,1,squared,AR-Holt,Naive,365,-3.11023e+07,-4.48454,9.80815e-06,AR-Holt better
+A,JFK,1,absolute,AR-Holt,Naive,365,-1845.9,-6.52854,2.2336e-10,AR-Holt better
+A,JFK,1,squared,AR-Holt,SeasonalNaive,365,-3.7924e+07,-3.70407,0.000245082,AR-Holt better
+A,JFK,1,absolute,AR-Holt,SeasonalNaive,365,-1916.94,-5.28687,2.15025e-07,AR-Holt better
+A,JFK,1,squared,AR-Holt,SES,365,-4.90812e+06,-2.02532,0.0435636,AR-Holt better
+A,JFK,1,absolute,AR-Holt,SES,365,-330.947,-3.08962,0.00215825,AR-Holt better
+A,JFK,1,squared,AR-Holt,Holt,365,-5.49125e+06,-2.26881,0.0238645,AR-Holt better
+A,JFK,1,absolute,AR-Holt,Holt,365,-361.88,-3.44333,0.000641496,AR-Holt better
+A,JFK,1,squared,AR-Holt,DampedHolt,365,-4.90644e+06,-2.02405,0.0436955,AR-Holt better
+A,JFK,1,absolute,AR-Holt,DampedHolt,365,-331.458,-3.09025,0.00215379,AR-Holt better
+A,JFK,1,squared,AR-Holt,TriggLeachHolt,365,-8.70298e+06,-2.88286,0.00417478,AR-Holt better
+A,JFK,1,absolute,AR-Holt,TriggLeachHolt,365,-408.427,-3.38206,0.000797581,AR-Holt better
+A,JFK,1,squared,AR-Holt,HoltWinters,365,1.95648e+06,0.47511,0.634994,no significant difference
+A,JFK,1,absolute,AR-Holt,HoltWinters,365,-223.995,-1.21838,0.223867,no significant difference
+A,JFK,7,squared,AR-Holt,Naive,359,-6.55061e+06,-0.975626,0.329909,no significant difference
+A,JFK,7,absolute,AR-Holt,Naive,359,-113.561,-0.510364,0.610111,no significant difference
+A,JFK,7,squared,AR-Holt,SeasonalNaive,359,-6.55061e+06,-0.975626,0.329909,no significant difference
+A,JFK,7,absolute,AR-Holt,SeasonalNaive,359,-113.561,-0.510364,0.610111,no significant difference
+A,JFK,7,squared,AR-Holt,SES,359,978680,0.319873,0.749251,no significant difference
+A,JFK,7,absolute,AR-Holt,SES,359,-157.645,-1.24001,0.215784,no significant difference
+A,JFK,7,squared,AR-Holt,Holt,359,-2.70262e+06,-0.777008,0.437667,no significant difference
+A,JFK,7,absolute,AR-Holt,Holt,359,-337.254,-2.27594,0.0234399,AR-Holt better
+A,JFK,7,squared,AR-Holt,DampedHolt,359,975734,0.318732,0.750116,no significant difference
+A,JFK,7,absolute,AR-Holt,DampedHolt,359,-157.908,-1.24077,0.215502,no significant difference
+A,JFK,7,squared,AR-Holt,TriggLeachHolt,359,-1.20129e+07,-3.42324,0.000690447,AR-Holt better
+A,JFK,7,absolute,AR-Holt,TriggLeachHolt,359,-659.072,-4.02176,7.04834e-05,AR-Holt better
+A,JFK,7,squared,AR-Holt,HoltWinters,359,3.87159e+06,0.971,0.332204,no significant difference
+A,JFK,7,absolute,AR-Holt,HoltWinters,359,-52.2863,-0.395524,0.692692,no significant difference
+A,SEA,1,squared,AR-Holt,Naive,365,-2.92253e+07,-6.98938,1.3246e-11,AR-Holt better
+A,SEA,1,absolute,AR-Holt,Naive,365,-2443.13,-8.93568,2.0532e-17,AR-Holt better
+A,SEA,1,squared,AR-Holt,SeasonalNaive,365,-4.91486e+06,-1.09579,0.273894,no significant difference
+A,SEA,1,absolute,AR-Holt,SeasonalNaive,365,-682.074,-3.00084,0.00287799,AR-Holt better
+A,SEA,1,squared,AR-Holt,SES,365,62346.3,0.134029,0.893454,no significant difference
+A,SEA,1,absolute,AR-Holt,SES,365,4.14986,0.122757,0.902368,no significant difference
+A,SEA,1,squared,AR-Holt,Holt,365,-298277,-0.567081,0.571009,no significant difference
+A,SEA,1,absolute,AR-Holt,Holt,365,11.9724,0.351052,0.725752,no significant difference
+A,SEA,1,squared,AR-Holt,DampedHolt,365,62392.5,0.13409,0.893406,no significant difference
+A,SEA,1,absolute,AR-Holt,DampedHolt,365,4.28344,0.126733,0.899221,no significant difference
+A,SEA,1,squared,AR-Holt,TriggLeachHolt,365,-6.19429e+06,-3.14836,0.00177749,AR-Holt better
+A,SEA,1,absolute,AR-Holt,TriggLeachHolt,365,-341.462,-3.4852,0.000551777,AR-Holt better
+A,SEA,1,squared,AR-Holt,HoltWinters,365,8.33559e+06,4.78309,2.51173e-06,HoltWinters better
+A,SEA,1,absolute,AR-Holt,HoltWinters,365,574.161,4.18074,3.64366e-05,HoltWinters better
+A,SEA,7,squared,AR-Holt,Naive,359,420107,0.178073,0.858767,no significant difference
+A,SEA,7,absolute,AR-Holt,Naive,359,2.15463,0.0158288,0.98738,no significant difference
+A,SEA,7,squared,AR-Holt,SeasonalNaive,359,420107,0.178073,0.858767,no significant difference
+A,SEA,7,absolute,AR-Holt,SeasonalNaive,359,2.15463,0.0158288,0.98738,no significant difference
+A,SEA,7,squared,AR-Holt,SES,359,-171846,-0.329966,0.741619,no significant difference
+A,SEA,7,absolute,AR-Holt,SES,359,-20.8571,-0.662312,0.508197,no significant difference
+A,SEA,7,squared,AR-Holt,Holt,359,-1.30952e+06,-1.36759,0.172297,no significant difference
+A,SEA,7,absolute,AR-Holt,Holt,359,-83.8537,-1.36705,0.172466,no significant difference
+A,SEA,7,squared,AR-Holt,DampedHolt,359,-169650,-0.325869,0.744714,no significant difference
+A,SEA,7,absolute,AR-Holt,DampedHolt,359,-20.71,-0.658515,0.51063,no significant difference
+A,SEA,7,squared,AR-Holt,TriggLeachHolt,359,-1.01568e+07,-4.3467,1.80327e-05,AR-Holt better
+A,SEA,7,absolute,AR-Holt,TriggLeachHolt,359,-636.132,-4.77921,2.57325e-06,AR-Holt better
+A,SEA,7,squared,AR-Holt,HoltWinters,359,2.00272e+06,2.10968,0.0355798,HoltWinters better
+A,SEA,7,absolute,AR-Holt,HoltWinters,359,106.576,1.40556,0.160722,no significant difference
+A,ALL7,1,squared,AR-Holt,Naive,365,-3.32203e+09,-10.9244,3.21717e-24,AR-Holt better
+A,ALL7,1,absolute,AR-Holt,Naive,365,-31702,-13.1748,1.10768e-32,AR-Holt better
+A,ALL7,1,squared,AR-Holt,SeasonalNaive,365,-5.48647e+08,-2.13118,0.0337435,AR-Holt better
+A,ALL7,1,absolute,AR-Holt,SeasonalNaive,365,-6969.62,-4.54041,7.64254e-06,AR-Holt better
+A,ALL7,1,squared,AR-Holt,SES,365,3.59479e+07,0.841968,0.400359,no significant difference
+A,ALL7,1,absolute,AR-Holt,SES,365,292.505,1.00212,0.316951,no significant difference
+A,ALL7,1,squared,AR-Holt,Holt,365,6.64277e+06,0.151482,0.87968,no significant difference
+A,ALL7,1,absolute,AR-Holt,Holt,365,140.842,0.474524,0.635411,no significant difference
+A,ALL7,1,squared,AR-Holt,DampedHolt,365,2.73206e+07,0.678996,0.497572,no significant difference
+A,ALL7,1,absolute,AR-Holt,DampedHolt,365,114.942,0.423211,0.672391,no significant difference
+A,ALL7,1,squared,AR-Holt,TriggLeachHolt,365,-3.18257e+08,-2.28757,0.0227356,AR-Holt better
+A,ALL7,1,absolute,AR-Holt,TriggLeachHolt,365,-1888.28,-2.81238,0.00518412,AR-Holt better
+A,ALL7,1,squared,AR-Holt,HoltWinters,365,2.66326e+08,3.67676,0.00027179,HoltWinters better
+A,ALL7,1,absolute,AR-Holt,HoltWinters,365,2557.64,3.26936,0.00118068,HoltWinters better
+A,ALL7,7,squared,AR-Holt,Naive,359,-2.37676e+07,-0.0986677,0.921457,no significant difference
+A,ALL7,7,absolute,AR-Holt,Naive,359,-3.08321,-0.00185293,0.998523,no significant difference
+A,ALL7,7,squared,AR-Holt,SeasonalNaive,359,-2.37676e+07,-0.0986677,0.921457,no significant difference
+A,ALL7,7,absolute,AR-Holt,SeasonalNaive,359,-3.08321,-0.00185293,0.998523,no significant difference
+A,ALL7,7,squared,AR-Holt,SES,359,9.16154e+07,2.2552,0.0247242,SES better
+A,ALL7,7,absolute,AR-Holt,SES,359,805.519,1.76692,0.0780941,no significant difference
+A,ALL7,7,squared,AR-Holt,Holt,359,-5.68367e+07,-1.21877,0.223735,no significant difference
+A,ALL7,7,absolute,AR-Holt,Holt,359,-452.06,-0.907065,0.364982,no significant difference
+A,ALL7,7,squared,AR-Holt,DampedHolt,359,5.2801e+07,1.62546,0.104946,no significant difference
+A,ALL7,7,absolute,AR-Holt,DampedHolt,359,301.964,0.834073,0.404796,no significant difference
+A,ALL7,7,squared,AR-Holt,TriggLeachHolt,359,-2.37879e+08,-1.85647,0.0642083,no significant difference
+A,ALL7,7,absolute,AR-Holt,TriggLeachHolt,359,-2071.15,-2.08954,0.0373642,AR-Holt better
+A,ALL7,7,squared,AR-Holt,HoltWinters,359,1.90425e+08,2.95685,0.00331426,HoltWinters better
+A,ALL7,7,absolute,AR-Holt,HoltWinters,359,1447.02,2.30167,0.0219274,HoltWinters better
+B,ATL,1,squared,AR-Holt,Naive,306,-8.27329e+06,-1.6771,0.0945473,no significant difference
+B,ATL,1,absolute,AR-Holt,Naive,306,-1097.98,-3.90656,0.000115342,AR-Holt better
+B,ATL,1,squared,AR-Holt,SeasonalNaive,306,-1.83797e+07,-3.66914,0.000287148,AR-Holt better
+B,ATL,1,absolute,AR-Holt,SeasonalNaive,306,-484.473,-2.72463,0.00680879,AR-Holt better
+B,ATL,1,squared,AR-Holt,SES,306,-2.27221e+06,-3.73476,0.000224187,AR-Holt better
+B,ATL,1,absolute,AR-Holt,SES,306,-104.36,-4.34327,1.91324e-05,AR-Holt better
+B,ATL,1,squared,AR-Holt,Holt,306,4.784e+06,2.91294,0.00384487,Holt better
+B,ATL,1,absolute,AR-Holt,Holt,306,13.5049,0.141715,0.887399,no significant difference
+B,ATL,1,squared,AR-Holt,DampedHolt,306,-2.18665e+06,-3.70006,0.000255648,AR-Holt better
+B,ATL,1,absolute,AR-Holt,DampedHolt,306,-99.7488,-4.23425,3.03891e-05,AR-Holt better
+B,ATL,1,squared,AR-Holt,TriggLeachHolt,306,1.13069e+07,3.2768,0.00117101,TriggLeachHolt better
+B,ATL,1,absolute,AR-Holt,TriggLeachHolt,306,681.874,4.2939,2.36196e-05,TriggLeachHolt better
+B,ATL,1,squared,AR-Holt,HoltWinters,306,1.53626e+06,1.65523,0.0989067,no significant difference
+B,ATL,1,absolute,AR-Holt,HoltWinters,306,-69.5182,-1.17075,0.242615,no significant difference
+B,ATL,7,squared,AR-Holt,Naive,300,2.81599e+07,1.50209,0.13413,no significant difference
+B,ATL,7,absolute,AR-Holt,Naive,300,1092.59,2.29529,0.0224088,Naive better
+B,ATL,7,squared,AR-Holt,SeasonalNaive,300,2.81599e+07,1.50209,0.13413,no significant difference
+B,ATL,7,absolute,AR-Holt,SeasonalNaive,300,1092.59,2.29529,0.0224088,SeasonalNaive better
+B,ATL,7,squared,AR-Holt,SES,300,-3.90432e+06,-1.75164,0.0808618,no significant difference
+B,ATL,7,absolute,AR-Holt,SES,300,-131.016,-2.38618,0.0176464,AR-Holt better
+B,ATL,7,squared,AR-Holt,Holt,300,1.53747e+07,1.36798,0.172345,no significant difference
+B,ATL,7,absolute,AR-Holt,Holt,300,-0.340341,-0.000879492,0.999299,no significant difference
+B,ATL,7,squared,AR-Holt,DampedHolt,300,-3.76112e+06,-1.74441,0.0821144,no significant difference
+B,ATL,7,absolute,AR-Holt,DampedHolt,300,-125.97,-2.36006,0.0189142,AR-Holt better
+B,ATL,7,squared,AR-Holt,TriggLeachHolt,300,2.88694e+07,1.50096,0.134421,no significant difference
+B,ATL,7,absolute,AR-Holt,TriggLeachHolt,300,529.471,0.999208,0.318502,no significant difference
+B,ATL,7,squared,AR-Holt,HoltWinters,300,4.14168e+06,1.749,0.0813175,no significant difference
+B,ATL,7,absolute,AR-Holt,HoltWinters,300,-11.759,-0.16178,0.871588,no significant difference
+B,DFW,1,squared,AR-Holt,Naive,306,-7.38798e+06,-2.45086,0.0148129,AR-Holt better
+B,DFW,1,absolute,AR-Holt,Naive,306,-932.845,-4.31977,2.11559e-05,AR-Holt better
+B,DFW,1,squared,AR-Holt,SeasonalNaive,306,-2.09817e+07,-3.26564,0.00121654,AR-Holt better
+B,DFW,1,absolute,AR-Holt,SeasonalNaive,306,-658.43,-2.6392,0.00873728,AR-Holt better
+B,DFW,1,squared,AR-Holt,SES,306,-5.58113e+06,-2.56502,0.0107953,AR-Holt better
+B,DFW,1,absolute,AR-Holt,SES,306,-377.104,-3.51095,0.000513915,AR-Holt better
+B,DFW,1,squared,AR-Holt,Holt,306,-4.02628e+06,-2.49385,0.013166,AR-Holt better
+B,DFW,1,absolute,AR-Holt,Holt,306,-525.265,-5.76387,2.01178e-08,AR-Holt better
+B,DFW,1,squared,AR-Holt,DampedHolt,306,-5.64923e+06,-2.57639,0.0104541,AR-Holt better
+B,DFW,1,absolute,AR-Holt,DampedHolt,306,-380.98,-3.52757,0.0004839,AR-Holt better
+B,DFW,1,squared,AR-Holt,TriggLeachHolt,306,-43477.9,-0.0544106,0.956644,no significant difference
+B,DFW,1,absolute,AR-Holt,TriggLeachHolt,306,-12.6723,-0.229376,0.818731,no significant difference
+B,DFW,1,squared,AR-Holt,HoltWinters,306,-1.39448e+06,-0.967922,0.33385,no significant difference
+B,DFW,1,absolute,AR-Holt,HoltWinters,306,-216.31,-2.53172,0.0118524,AR-Holt better
+B,DFW,7,squared,AR-Holt,Naive,300,1.02157e+07,1.09591,0.273999,no significant difference
+B,DFW,7,absolute,AR-Holt,Naive,300,466.45,2.26529,0.0242104,Naive better
+B,DFW,7,squared,AR-Holt,SeasonalNaive,300,1.02157e+07,1.09591,0.273999,no significant difference
+B,DFW,7,absolute,AR-Holt,SeasonalNaive,300,466.45,2.26529,0.0242104,SeasonalNaive better
+B,DFW,7,squared,AR-Holt,SES,300,-1.19015e+07,-1.3966,0.163571,no significant difference
+B,DFW,7,absolute,AR-Holt,SES,300,-530.443,-2.06267,0.040007,AR-Holt better
+B,DFW,7,squared,AR-Holt,Holt,300,-1.02545e+07,-2.42843,0.0157539,AR-Holt better
+B,DFW,7,absolute,AR-Holt,Holt,300,-1071.92,-4.05318,6.44821e-05,AR-Holt better
+B,DFW,7,squared,AR-Holt,DampedHolt,300,-1.20218e+07,-1.39917,0.162799,no significant difference
+B,DFW,7,absolute,AR-Holt,DampedHolt,300,-535.452,-2.06811,0.0394889,AR-Holt better
+B,DFW,7,squared,AR-Holt,TriggLeachHolt,300,2.53124e+06,0.558283,0.577069,no significant difference
+B,DFW,7,absolute,AR-Holt,TriggLeachHolt,300,-346.082,-1.70208,0.0897794,no significant difference
+B,DFW,7,squared,AR-Holt,HoltWinters,300,-4.67684e+06,-0.936853,0.34959,no significant difference
+B,DFW,7,absolute,AR-Holt,HoltWinters,300,-278.296,-1.65725,0.0985174,no significant difference
+B,DEN,1,squared,AR-Holt,Naive,306,-2.13827e+07,-5.13787,4.96827e-07,AR-Holt better
+B,DEN,1,absolute,AR-Holt,Naive,306,-1735.21,-6.85635,3.92684e-11,AR-Holt better
+B,DEN,1,squared,AR-Holt,SeasonalNaive,306,-2.79928e+07,-3.02838,0.00266878,AR-Holt better
+B,DEN,1,absolute,AR-Holt,SeasonalNaive,306,-819.399,-3.06215,0.00239329,AR-Holt better
+B,DEN,1,squared,AR-Holt,SES,306,-3.94408e+06,-2.59313,0.00996911,AR-Holt better
+B,DEN,1,absolute,AR-Holt,SES,306,-253.555,-3.397,0.000771659,AR-Holt better
+B,DEN,1,squared,AR-Holt,Holt,306,-862995,-1.89842,0.0585844,no significant difference
+B,DEN,1,absolute,AR-Holt,Holt,306,-266.742,-5.15248,4.6251e-07,AR-Holt better
+B,DEN,1,squared,AR-Holt,DampedHolt,306,-3.99793e+06,-2.60205,0.00971927,AR-Holt better
+B,DEN,1,absolute,AR-Holt,DampedHolt,306,-256.704,-3.41453,0.00072539,AR-Holt better
+B,DEN,1,squared,AR-Holt,TriggLeachHolt,306,1.5736e+06,0.816234,0.415004,no significant difference
+B,DEN,1,absolute,AR-Holt,TriggLeachHolt,306,-57.4338,-0.660207,0.509619,no significant difference
+B,DEN,1,squared,AR-Holt,HoltWinters,306,-3.02768e+06,-2.89548,0.00405928,AR-Holt better
+B,DEN,1,absolute,AR-Holt,HoltWinters,306,-354.147,-4.80127,2.47422e-06,AR-Holt better
+B,DEN,7,squared,AR-Holt,Naive,300,9.73145e+06,1.44305,0.150052,no significant difference
+B,DEN,7,absolute,AR-Holt,Naive,300,645.93,3.45756,0.000624205,Naive better
+B,DEN,7,squared,AR-Holt,SeasonalNaive,300,9.73145e+06,1.44305,0.150052,no significant difference
+B,DEN,7,absolute,AR-Holt,SeasonalNaive,300,645.93,3.45756,0.000624205,SeasonalNaive better
+B,DEN,7,squared,AR-Holt,SES,300,-1.08135e+07,-1.58865,0.113197,no significant difference
+B,DEN,7,absolute,AR-Holt,SES,300,-497.522,-1.94818,0.0523289,no significant difference
+B,DEN,7,squared,AR-Holt,Holt,300,249206,0.0784117,0.937553,no significant difference
+B,DEN,7,absolute,AR-Holt,Holt,300,-299.159,-1.77862,0.0763187,no significant difference
+B,DEN,7,squared,AR-Holt,DampedHolt,300,-1.091e+07,-1.59084,0.112703,no significant difference
+B,DEN,7,absolute,AR-Holt,DampedHolt,300,-501.944,-1.95552,0.051453,no significant difference
+B,DEN,7,squared,AR-Holt,TriggLeachHolt,300,4.18929e+06,0.90113,0.368245,no significant difference
+B,DEN,7,absolute,AR-Holt,TriggLeachHolt,300,89.4296,0.403974,0.68652,no significant difference
+B,DEN,7,squared,AR-Holt,HoltWinters,300,-7.69993e+06,-1.55479,0.121055,no significant difference
+B,DEN,7,absolute,AR-Holt,HoltWinters,300,-453.296,-2.13358,0.0336912,AR-Holt better
+B,ORD,1,squared,AR-Holt,Naive,306,-8.02396e+06,-3.76421,0.000200396,AR-Holt better
+B,ORD,1,absolute,AR-Holt,Naive,306,-1101.7,-6.1486,2.44569e-09,AR-Holt better
+B,ORD,1,squared,AR-Holt,SeasonalNaive,306,-2.70743e+07,-3.28331,0.00114524,AR-Holt better
+B,ORD,1,absolute,AR-Holt,SeasonalNaive,306,-855.301,-3.34832,0.000914996,AR-Holt better
+B,ORD,1,squared,AR-Holt,SES,306,-2.09304e+06,-2.73826,0.00653962,AR-Holt better
+B,ORD,1,absolute,AR-Holt,SES,306,-117.481,-3.10129,0.00210691,AR-Holt better
+B,ORD,1,squared,AR-Holt,Holt,306,-736134,-2.87617,0.00430894,AR-Holt better
+B,ORD,1,absolute,AR-Holt,Holt,306,-217.549,-5.51947,7.27442e-08,AR-Holt better
+B,ORD,1,squared,AR-Holt,DampedHolt,306,-2.09467e+06,-2.73863,0.00653238,AR-Holt better
+B,ORD,1,absolute,AR-Holt,DampedHolt,306,-117.588,-3.1024,0.00209928,AR-Holt better
+B,ORD,1,squared,AR-Holt,TriggLeachHolt,306,1.44237e+06,1.4788,0.140225,no significant difference
+B,ORD,1,absolute,AR-Holt,TriggLeachHolt,306,29.0224,0.38616,0.699647,no significant difference
+B,ORD,1,squared,AR-Holt,HoltWinters,306,-1.81708e+06,-3.20414,0.00149806,AR-Holt better
+B,ORD,1,absolute,AR-Holt,HoltWinters,306,-205.364,-4.70692,3.8211e-06,AR-Holt better
+B,ORD,7,squared,AR-Holt,Naive,300,1.10108e+07,1.58432,0.114178,no significant difference
+B,ORD,7,absolute,AR-Holt,Naive,300,436.687,2.30416,0.0218992,Naive better
+B,ORD,7,squared,AR-Holt,SeasonalNaive,300,1.10108e+07,1.58432,0.114178,no significant difference
+B,ORD,7,absolute,AR-Holt,SeasonalNaive,300,436.687,2.30416,0.0218992,SeasonalNaive better
+B,ORD,7,squared,AR-Holt,SES,300,-6.0424e+06,-1.68065,0.0938752,no significant difference
+B,ORD,7,absolute,AR-Holt,SES,300,-244.228,-2.83596,0.00488057,AR-Holt better
+B,ORD,7,squared,AR-Holt,Holt,300,-733373,-0.170782,0.864511,no significant difference
+B,ORD,7,absolute,AR-Holt,Holt,300,-839.058,-2.75463,0.00623595,AR-Holt better
+B,ORD,7,squared,AR-Holt,DampedHolt,300,-6.04664e+06,-1.68075,0.0938557,no significant difference
+B,ORD,7,absolute,AR-Holt,DampedHolt,300,-244.387,-2.83608,0.00487885,AR-Holt better
+B,ORD,7,squared,AR-Holt,TriggLeachHolt,300,6.23331e+06,0.795622,0.426883,no significant difference
+B,ORD,7,absolute,AR-Holt,TriggLeachHolt,300,-564.401,-1.9277,0.054839,no significant difference
+B,ORD,7,squared,AR-Holt,HoltWinters,300,-2.87999e+06,-1.592,0.112442,no significant difference
+B,ORD,7,absolute,AR-Holt,HoltWinters,300,-202.636,-3.90131,0.000118223,AR-Holt better
+B,LAX,1,squared,AR-Holt,Naive,306,-1.132e+07,-4.20635,3.41587e-05,AR-Holt better
+B,LAX,1,absolute,AR-Holt,Naive,306,-1372.82,-7.40003,1.33151e-12,AR-Holt better
+B,LAX,1,squared,AR-Holt,SeasonalNaive,306,-4.77065e+07,-4.17333,3.9195e-05,AR-Holt better
+B,LAX,1,absolute,AR-Holt,SeasonalNaive,306,-1751.45,-6.08121,3.56339e-09,AR-Holt better
+B,LAX,1,squared,AR-Holt,SES,306,-457462,-2.12637,0.0342756,AR-Holt better
+B,LAX,1,absolute,AR-Holt,SES,306,-26.3817,-2.07996,0.0383639,AR-Holt better
+B,LAX,1,squared,AR-Holt,Holt,306,1.57101e+06,2.17633,0.0302978,Holt better
+B,LAX,1,absolute,AR-Holt,Holt,306,-84.8862,-1.34273,0.180359,no significant difference
+B,LAX,1,squared,AR-Holt,DampedHolt,306,-495760,-2.20627,0.0281104,AR-Holt better
+B,LAX,1,absolute,AR-Holt,DampedHolt,306,-28.3865,-2.17904,0.0300936,AR-Holt better
+B,LAX,1,squared,AR-Holt,TriggLeachHolt,306,2.88334e+06,2.29435,0.0224495,TriggLeachHolt better
+B,LAX,1,absolute,AR-Holt,TriggLeachHolt,306,67.4358,0.864083,0.388222,no significant difference
+B,LAX,1,squared,AR-Holt,HoltWinters,306,287769,0.50705,0.612486,no significant difference
+B,LAX,1,absolute,AR-Holt,HoltWinters,306,-130.347,-2.93184,0.00362462,AR-Holt better
+B,LAX,7,squared,AR-Holt,Naive,300,1.51021e+07,1.53998,0.124622,no significant difference
+B,LAX,7,absolute,AR-Holt,Naive,300,423.916,2.08872,0.0375789,Naive better
+B,LAX,7,squared,AR-Holt,SeasonalNaive,300,1.51021e+07,1.53998,0.124622,no significant difference
+B,LAX,7,absolute,AR-Holt,SeasonalNaive,300,423.916,2.08872,0.0375789,SeasonalNaive better
+B,LAX,7,squared,AR-Holt,SES,300,-2.12031e+06,-1.82523,0.0689637,no significant difference
+B,LAX,7,absolute,AR-Holt,SES,300,-65.7784,-2.99496,0.00297433,AR-Holt better
+B,LAX,7,squared,AR-Holt,Holt,300,1.702e+07,1.09999,0.272219,no significant difference
+B,LAX,7,absolute,AR-Holt,Holt,300,-308.232,-0.678328,0.498088,no significant difference
+B,LAX,7,squared,AR-Holt,DampedHolt,300,-2.23911e+06,-1.82134,0.0695541,no significant difference
+B,LAX,7,absolute,AR-Holt,DampedHolt,300,-69.3053,-2.9933,0.00299006,AR-Holt better
+B,LAX,7,squared,AR-Holt,TriggLeachHolt,300,1.46933e+07,1.03071,0.30351,no significant difference
+B,LAX,7,absolute,AR-Holt,TriggLeachHolt,300,-525.476,-1.1875,0.235971,no significant difference
+B,LAX,7,squared,AR-Holt,HoltWinters,300,3.31305e+06,1.53924,0.124803,no significant difference
+B,LAX,7,absolute,AR-Holt,HoltWinters,300,32.8671,0.715783,0.474684,no significant difference
+B,JFK,1,squared,AR-Holt,Naive,306,-1.78472e+06,-2.55487,0.0111081,AR-Holt better
+B,JFK,1,absolute,AR-Holt,Naive,306,-306.775,-4.3768,1.65627e-05,AR-Holt better
+B,JFK,1,squared,AR-Holt,SeasonalNaive,306,-3.29905e+07,-3.35143,0.000905146,AR-Holt better
+B,JFK,1,absolute,AR-Holt,SeasonalNaive,306,-1226.72,-4.19964,3.51284e-05,AR-Holt better
+B,JFK,1,squared,AR-Holt,SES,306,51375,0.172051,0.863512,no significant difference
+B,JFK,1,absolute,AR-Holt,SES,306,-1.12067,-0.0426559,0.966004,no significant difference
+B,JFK,1,squared,AR-Holt,Holt,306,236859,0.763061,0.446017,no significant difference
+B,JFK,1,absolute,AR-Holt,Holt,306,-45.7497,-1.37538,0.170021,no significant difference
+B,JFK,1,squared,AR-Holt,DampedHolt,306,50179.1,0.168066,0.866643,no significant difference
+B,JFK,1,absolute,AR-Holt,DampedHolt,306,-1.23785,-0.0471365,0.962435,no significant difference
+B,JFK,1,squared,AR-Holt,TriggLeachHolt,306,-379030,-1.22256,0.22244,no significant difference
+B,JFK,1,absolute,AR-Holt,TriggLeachHolt,306,-175.366,-3.96484,9.15601e-05,AR-Holt better
+B,JFK,1,squared,AR-Holt,HoltWinters,306,-70578.8,-0.236095,0.813517,no significant difference
+B,JFK,1,absolute,AR-Holt,HoltWinters,306,-20.506,-0.730579,0.465597,no significant difference
+B,JFK,7,squared,AR-Holt,Naive,300,888007,1.08722,0.277816,no significant difference
+B,JFK,7,absolute,AR-Holt,Naive,300,13.3372,0.262589,0.793048,no significant difference
+B,JFK,7,squared,AR-Holt,SeasonalNaive,300,888007,1.08722,0.277816,no significant difference
+B,JFK,7,absolute,AR-Holt,SeasonalNaive,300,13.3372,0.262589,0.793048,no significant difference
+B,JFK,7,squared,AR-Holt,SES,300,-1.09311e+06,-1.13246,0.258349,no significant difference
+B,JFK,7,absolute,AR-Holt,SES,300,-33.2163,-0.859234,0.3909,no significant difference
+B,JFK,7,squared,AR-Holt,Holt,300,4.1087e+06,0.930303,0.352965,no significant difference
+B,JFK,7,absolute,AR-Holt,Holt,300,-476.48,-2.013,0.0450107,AR-Holt better
+B,JFK,7,squared,AR-Holt,DampedHolt,300,-1.09913e+06,-1.13445,0.257514,no significant difference
+B,JFK,7,absolute,AR-Holt,DampedHolt,300,-33.4128,-0.863793,0.388394,no significant difference
+B,JFK,7,squared,AR-Holt,TriggLeachHolt,300,1.88362e+06,0.499538,0.617768,no significant difference
+B,JFK,7,absolute,AR-Holt,TriggLeachHolt,300,-631.367,-2.74186,0.00647728,AR-Holt better
+B,JFK,7,squared,AR-Holt,HoltWinters,300,-1.02876e+06,-1.08341,0.279498,no significant difference
+B,JFK,7,absolute,AR-Holt,HoltWinters,300,-34.6766,-0.909778,0.363672,no significant difference
+B,SEA,1,squared,AR-Holt,Naive,306,-1.54823e+06,-2.70238,0.00727016,AR-Holt better
+B,SEA,1,absolute,AR-Holt,Naive,306,-362.322,-4.12907,4.70676e-05,AR-Holt better
+B,SEA,1,squared,AR-Holt,SeasonalNaive,306,-1.05889e+07,-4.4839,1.0388e-05,AR-Holt better
+B,SEA,1,absolute,AR-Holt,SeasonalNaive,306,-906.639,-5.75246,2.13827e-08,AR-Holt better
+B,SEA,1,squared,AR-Holt,SES,306,-445725,-2.32721,0.0206084,AR-Holt better
+B,SEA,1,absolute,AR-Holt,SES,306,-53.1106,-2.21271,0.027658,AR-Holt better
+B,SEA,1,squared,AR-Holt,Holt,306,-168046,-1.4713,0.14224,no significant difference
+B,SEA,1,absolute,AR-Holt,Holt,306,-105.369,-4.23678,3.00676e-05,AR-Holt better
+B,SEA,1,squared,AR-Holt,DampedHolt,306,-444806,-2.32599,0.0206745,AR-Holt better
+B,SEA,1,absolute,AR-Holt,DampedHolt,306,-52.9854,-2.21008,0.027842,AR-Holt better
+B,SEA,1,squared,AR-Holt,TriggLeachHolt,306,104665,0.534017,0.593719,no significant difference
+B,SEA,1,absolute,AR-Holt,TriggLeachHolt,306,-34.1391,-1.15381,0.24948,no significant difference
+B,SEA,1,squared,AR-Holt,HoltWinters,306,349614,1.14613,0.252638,no significant difference
+B,SEA,1,absolute,AR-Holt,HoltWinters,306,150.897,3.24944,0.0012855,HoltWinters better
+B,SEA,7,squared,AR-Holt,Naive,300,1.27315e+06,1.49881,0.134978,no significant difference
+B,SEA,7,absolute,AR-Holt,Naive,300,66.8817,1.18321,0.237667,no significant difference
+B,SEA,7,squared,AR-Holt,SeasonalNaive,300,1.27315e+06,1.49881,0.134978,no significant difference
+B,SEA,7,absolute,AR-Holt,SeasonalNaive,300,66.8817,1.18321,0.237667,no significant difference
+B,SEA,7,squared,AR-Holt,SES,300,-2.03427e+06,-1.65756,0.0984556,no significant difference
+B,SEA,7,absolute,AR-Holt,SES,300,-105.396,-1.82215,0.0694307,no significant difference
+B,SEA,7,squared,AR-Holt,Holt,300,1.15704e+06,0.560815,0.575344,no significant difference
+B,SEA,7,absolute,AR-Holt,Holt,300,-307.256,-1.65104,0.0997805,no significant difference
+B,SEA,7,squared,AR-Holt,DampedHolt,300,-2.03025e+06,-1.65701,0.0985668,no significant difference
+B,SEA,7,absolute,AR-Holt,DampedHolt,300,-105.121,-1.8198,0.0697898,no significant difference
+B,SEA,7,squared,AR-Holt,TriggLeachHolt,300,45811.3,0.028735,0.977095,no significant difference
+B,SEA,7,absolute,AR-Holt,TriggLeachHolt,300,-392.539,-2.41616,0.0162842,AR-Holt better
+B,SEA,7,squared,AR-Holt,HoltWinters,300,-254969,-0.608385,0.543394,no significant difference
+B,SEA,7,absolute,AR-Holt,HoltWinters,300,12.5602,0.33963,0.734374,no significant difference
+B,ALL7,1,squared,AR-Holt,Naive,306,-4.32324e+08,-5.61709,4.37553e-08,AR-Holt better
+B,ALL7,1,absolute,AR-Holt,Naive,306,-8889.42,-8.45732,1.15133e-15,AR-Holt better
+B,ALL7,1,squared,AR-Holt,SeasonalNaive,306,-1.2974e+09,-3.66863,0.000287691,AR-Holt better
+B,ALL7,1,absolute,AR-Holt,SeasonalNaive,306,-7956.62,-4.62457,5.55291e-06,AR-Holt better
+B,ALL7,1,squared,AR-Holt,SES,306,-2.08442e+08,-3.14607,0.00181814,AR-Holt better
+B,ALL7,1,absolute,AR-Holt,SES,306,-2289.01,-4.64414,5.08333e-06,AR-Holt better
+B,ALL7,1,squared,AR-Holt,Holt,306,-1.0225e+08,-3.60898,0.00035917,AR-Holt better
+B,ALL7,1,absolute,AR-Holt,Holt,306,-2665.13,-6.63218,1.50452e-10,AR-Holt better
+B,ALL7,1,squared,AR-Holt,DampedHolt,306,-2.11535e+08,-3.15393,0.00177141,AR-Holt better
+B,ALL7,1,absolute,AR-Holt,DampedHolt,306,-2319.52,-4.65896,4.75339e-06,AR-Holt better
+B,ALL7,1,squared,AR-Holt,TriggLeachHolt,306,3.50683e+07,1.35642,0.17597,no significant difference
+B,ALL7,1,absolute,AR-Holt,TriggLeachHolt,306,-187.079,-0.53425,0.593558,no significant difference
+B,ALL7,1,squared,AR-Holt,HoltWinters,306,-1.61369e+08,-3.37205,0.000842283,AR-Holt better
+B,ALL7,1,absolute,AR-Holt,HoltWinters,306,-2548.58,-6.09049,3.3841e-09,AR-Holt better
+B,ALL7,7,squared,AR-Holt,Naive,300,2.6872e+08,1.45995,0.145354,no significant difference
+B,ALL7,7,absolute,AR-Holt,Naive,300,2064.82,2.33192,0.020369,Naive better
+B,ALL7,7,squared,AR-Holt,SeasonalNaive,300,2.6872e+08,1.45995,0.145354,no significant difference
+B,ALL7,7,absolute,AR-Holt,SeasonalNaive,300,2064.82,2.33192,0.020369,SeasonalNaive better
+B,ALL7,7,squared,AR-Holt,SES,300,-5.85874e+08,-1.64961,0.100074,no significant difference
+B,ALL7,7,absolute,AR-Holt,SES,300,-3013.81,-2.39317,0.01732,AR-Holt better
+B,ALL7,7,squared,AR-Holt,Holt,300,6.59271e+07,0.397833,0.691037,no significant difference
+B,ALL7,7,absolute,AR-Holt,Holt,300,-3140.61,-1.84103,0.0666079,no significant difference
+B,ALL7,7,squared,AR-Holt,DampedHolt,300,-5.92997e+08,-1.6515,0.0996853,no significant difference
+B,ALL7,7,absolute,AR-Holt,DampedHolt,300,-3055.07,-2.40104,0.0169592,AR-Holt better
+B,ALL7,7,squared,AR-Holt,TriggLeachHolt,300,2.32785e+08,0.852563,0.394584,no significant difference
+B,ALL7,7,absolute,AR-Holt,TriggLeachHolt,300,-2718.67,-1.40353,0.161497,no significant difference
+B,ALL7,7,squared,AR-Holt,HoltWinters,300,-4.22073e+08,-1.62929,0.104304,no significant difference
+B,ALL7,7,absolute,AR-Holt,HoltWinters,300,-2593.61,-2.74546,0.00640845,AR-Holt better
+C1,AirPassengers,1,squared,AR-Holt,Naive,36,-2069.12,-4.80679,2.87186e-05,AR-Holt better
+C1,AirPassengers,1,absolute,AR-Holt,Naive,36,-25.4175,-6.24758,3.64876e-07,AR-Holt better
+C1,AirPassengers,1,squared,AR-Holt,SeasonalNaive,36,-1301.32,-5.3415,5.70276e-06,AR-Holt better
+C1,AirPassengers,1,absolute,AR-Holt,SeasonalNaive,36,-19.0008,-4.83097,2.67041e-05,AR-Holt better
+C1,AirPassengers,1,squared,AR-Holt,SES,36,2.41277,0.0782821,0.938049,no significant difference
+C1,AirPassengers,1,absolute,AR-Holt,SES,36,0.567403,0.960555,0.343365,no significant difference
+C1,AirPassengers,1,squared,AR-Holt,Holt,36,17.8955,1.22756,0.227803,no significant difference
+C1,AirPassengers,1,absolute,AR-Holt,Holt,36,0.510514,1.16386,0.252352,no significant difference
+C1,AirPassengers,1,squared,AR-Holt,DampedHolt,36,17.8955,1.22756,0.227803,no significant difference
+C1,AirPassengers,1,absolute,AR-Holt,DampedHolt,36,0.510514,1.16386,0.252352,no significant difference
+C1,AirPassengers,1,squared,AR-Holt,TriggLeachHolt,36,-116.305,-0.968924,0.339231,no significant difference
+C1,AirPassengers,1,absolute,AR-Holt,TriggLeachHolt,36,-1.98466,-0.993951,0.327069,no significant difference
+C1,AirPassengers,1,squared,AR-Holt,HoltWinters,36,114.782,2.20736,0.0339385,HoltWinters better
+C1,AirPassengers,1,absolute,AR-Holt,HoltWinters,36,2.23294,2.04669,0.0482558,HoltWinters better
+C1,AirPassengers,7,squared,AR-Holt,Naive,30,-12436.8,-4.34124,0.00015732,AR-Holt better
+C1,AirPassengers,7,absolute,AR-Holt,Naive,30,-65.6418,-6.00865,1.55544e-06,AR-Holt better
+C1,AirPassengers,7,squared,AR-Holt,SeasonalNaive,30,-681.704,-1.77797,0.0858966,no significant difference
+C1,AirPassengers,7,absolute,AR-Holt,SeasonalNaive,30,-10.5751,-1.77881,0.0857566,no significant difference
+C1,AirPassengers,7,squared,AR-Holt,SES,30,-788.838,-2.05942,0.0485318,AR-Holt better
+C1,AirPassengers,7,absolute,AR-Holt,SES,30,-8.99295,-2.30282,0.0286569,AR-Holt better
+C1,AirPassengers,7,squared,AR-Holt,Holt,30,36.0605,1.64894,0.109953,no significant difference
+C1,AirPassengers,7,absolute,AR-Holt,Holt,30,1.17113,2.14013,0.040885,Holt better
+C1,AirPassengers,7,squared,AR-Holt,DampedHolt,30,36.0606,1.64895,0.109951,no significant difference
+C1,AirPassengers,7,absolute,AR-Holt,DampedHolt,30,1.17114,2.14014,0.0408842,DampedHolt better
+C1,AirPassengers,7,squared,AR-Holt,TriggLeachHolt,30,-131.076,-0.547645,0.588126,no significant difference
+C1,AirPassengers,7,absolute,AR-Holt,TriggLeachHolt,30,-1.57439,-0.337782,0.737961,no significant difference
+C1,AirPassengers,7,squared,AR-Holt,HoltWinters,30,248.078,1.80421,0.0815947,no significant difference
+C1,AirPassengers,7,absolute,AR-Holt,HoltWinters,30,2.34772,1.28185,0.21005,no significant difference
+C2,Australia,1,squared,AR-Holt,Naive,10,1.72872,0.272135,0.791659,no significant difference
+C2,Australia,1,absolute,AR-Holt,Naive,10,-0.0303324,-0.0463676,0.96403,no significant difference
+C2,Australia,1,squared,AR-Holt,SeasonalNaive,10,1.72872,0.272135,0.791659,no significant difference
+C2,Australia,1,absolute,AR-Holt,SeasonalNaive,10,-0.0303324,-0.0463676,0.96403,no significant difference
+C2,Australia,1,squared,AR-Holt,SES,10,1.72872,0.272135,0.791659,no significant difference
+C2,Australia,1,absolute,AR-Holt,SES,10,-0.0303324,-0.0463676,0.96403,no significant difference
+C2,Australia,1,squared,AR-Holt,Holt,10,5.73951,0.95028,0.366789,no significant difference
+C2,Australia,1,absolute,AR-Holt,Holt,10,0.547234,0.87037,0.406713,no significant difference
+C2,Australia,1,squared,AR-Holt,DampedHolt,10,5.73951,0.95028,0.366789,no significant difference
+C2,Australia,1,absolute,AR-Holt,DampedHolt,10,0.547234,0.87037,0.406713,no significant difference
+C2,Australia,1,squared,AR-Holt,TriggLeachHolt,10,0.612519,0.344625,0.738292,no significant difference
+C2,Australia,1,absolute,AR-Holt,TriggLeachHolt,10,-0.121469,-0.555385,0.592166,no significant difference
+C2,Australia,1,squared,AR-Holt,HoltWinters,10,6.92326,1.09742,0.300951,no significant difference
+C2,Australia,1,absolute,AR-Holt,HoltWinters,10,0.944362,1.23677,0.247472,no significant difference
+C2,Australia,5,squared,AR-Holt,Naive,6,-110.037,-1.58558,0.173691,no significant difference
+C2,Australia,5,absolute,AR-Holt,Naive,6,-4.25445,-4.16091,0.0088163,AR-Holt better
+C2,Australia,5,squared,AR-Holt,SeasonalNaive,6,-110.037,-1.58558,0.173691,no significant difference
+C2,Australia,5,absolute,AR-Holt,SeasonalNaive,6,-4.25445,-4.16091,0.0088163,AR-Holt better
+C2,Australia,5,squared,AR-Holt,SES,6,-110.037,-1.58558,0.173691,no significant difference
+C2,Australia,5,absolute,AR-Holt,SES,6,-4.25445,-4.16091,0.0088163,AR-Holt better
+C2,Australia,5,squared,AR-Holt,Holt,6,6.72378,0.331212,0.753915,no significant difference
+C2,Australia,5,absolute,AR-Holt,Holt,6,0.558607,0.546325,0.608327,no significant difference
+C2,Australia,5,squared,AR-Holt,DampedHolt,6,6.72378,0.331212,0.753915,no significant difference
+C2,Australia,5,absolute,AR-Holt,DampedHolt,6,0.558607,0.546325,0.608327,no significant difference
+C2,Australia,5,squared,AR-Holt,TriggLeachHolt,6,-0.761097,-0.0421623,0.968001,no significant difference
+C2,Australia,5,absolute,AR-Holt,TriggLeachHolt,6,-0.201419,-0.491041,0.644189,no significant difference
+C2,Australia,5,squared,AR-Holt,HoltWinters,6,54.0997,3.83283,0.0122125,HoltWinters better
+C2,Australia,5,absolute,AR-Holt,HoltWinters,6,3.23841,21.1889,4.33967e-06,HoltWinters better

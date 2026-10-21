@@ -17,9 +17,22 @@ Index estimation (classical ratio-to-moving-average method):
     indices normalised to have mean 1.
 The MEDIAN (not the mean) keeps one Thanksgiving or snowstorm from
 distorting the weekday index.
+
+Two modes
+---------
+* "fixed" (v1): the indices are estimated ONCE, on the trailing window of
+  the training data, and used for every date afterwards.
+* "rolling" (v2, the default): the indices are re-estimated at EVERY time
+  step t, using only the `window` observations ending at t (26 weeks for
+  daily data; window=None means all data up to t). Observation t is
+  adjusted with the indices known on day t, and a forecast made at origin t
+  is re-seasonalised with the indices estimated at t. Nothing after t is
+  ever used, so the weekday pattern can drift without look-ahead.
 """
 
 from __future__ import annotations
+
+import hashlib
 
 import numpy as np
 import pandas as pd
@@ -63,22 +76,61 @@ def centred_moving_average(y: np.ndarray, m: int) -> np.ndarray:
     return out
 
 
+# Rolling index matrices are re-used by every model fitted on the same data,
+# so they are cached by a fingerprint of the series (small, bounded cache).
+_ROLLING_CACHE: dict = {}
+_ROLLING_CACHE_MAX = 64
+
+
+def _fingerprint(y: pd.Series, m: int, window) -> tuple:
+    digest = hashlib.sha1(np.ascontiguousarray(y.to_numpy(dtype=float)).tobytes()).hexdigest()
+    return (digest, len(y), y.index[0], y.index[-1], m, window)
+
+
 class SeasonalAdjuster:
     """Estimate multiplicative seasonal indices and apply / remove them.
 
     Parameters
     ----------
     m : seasonal period (7 daily, 12 monthly, 1 = no seasonality)
-    window : use only the trailing `window` observations of the training
-             data to estimate the indices (None = all of it)
+    window : number of most recent observations used to estimate the
+             indices (None = all available data)
+    mode : "fixed" — estimate once on the training data (v1);
+           "rolling" — re-estimate at every time step from the `window`
+           observations ending there (v2)
     """
 
-    def __init__(self, m: int, window: int | None = None):
+    # Before this many full seasonal cycles exist, rolling mode re-uses the
+    # first available estimate (the same convention as initialising the
+    # level from the first 2m points).
+    MIN_CYCLES = 4
+
+    def __init__(self, m: int, window: int | None = None, mode: str = "fixed"):
+        if mode not in ("fixed", "rolling"):
+            raise ValueError(f"mode must be 'fixed' or 'rolling', not {mode!r}")
         self.m = int(m)
         self.window = window
+        self.mode = mode
         self.indices_ = np.ones(max(self.m, 1))
 
+    @staticmethod
+    def _estimate(ratio: np.ndarray, pos: np.ndarray, m: int) -> np.ndarray:
+        """Median ratio per season position, normalised to mean 1."""
+        idx = np.ones(m)
+        ok = np.isfinite(ratio)
+        for j in range(m):
+            r = ratio[(pos == j) & ok]
+            if len(r):
+                idx[j] = np.median(r)
+        return idx / idx.mean()
+
     def fit(self, y: pd.Series) -> "SeasonalAdjuster":
+        """Estimate indices on the trailing window of y.
+
+        In fixed mode these are THE indices; in rolling mode they are just
+        the latest estimate (kept for display) — the rolling indices are
+        computed from whatever series is passed to adjust() etc.
+        """
         if self.m <= 1:
             self.indices_ = np.ones(1)
             return self
@@ -88,28 +140,86 @@ class SeasonalAdjuster:
         cma = centred_moving_average(values, self.m)
         with np.errstate(divide="ignore", invalid="ignore"):
             ratio = values / cma
-        pos = season_positions(y.index, self.m)
-        idx = np.ones(self.m)
-        for j in range(self.m):
-            r = ratio[(pos == j) & np.isfinite(ratio)]
-            if len(r):
-                idx[j] = np.median(r)
-        self.indices_ = idx / idx.mean()  # normalise to mean 1
+        self.indices_ = self._estimate(ratio, season_positions(y.index, self.m), self.m)
         return self
 
+    # --- the index set in force at each time step ------------------------
+    def origin_indices(self, y: pd.Series) -> np.ndarray:
+        """(n, m) array: row t = the indices known at time t.
+
+        Fixed mode: every row equals indices_. Rolling mode: row t is
+        estimated from the observations in (t - window, t] only. The centred
+        moving average at point j needs y up to j + m/2, so inside that window
+        the usable ratios are j in [start + half, t - half] — exactly what
+        fit() would compute on the window, but without refitting n times.
+        """
+        n, m = len(y), self.m
+        if m <= 1:
+            return np.ones((n, 1))
+        if self.mode == "fixed":
+            return np.tile(self.indices_, (n, 1))
+        key = _fingerprint(y, m, self.window)
+        if key in _ROLLING_CACHE:
+            return _ROLLING_CACHE[key]
+        values = y.to_numpy(dtype=float)
+        cma = centred_moving_average(values, m)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            ratio = values / cma
+        pos = season_positions(y.index, m)
+        half = m // 2  # (m-1)/2 for odd m; m/2 for the 2 x m MA of even m
+        first = min(self.MIN_CYCLES * m - 1, n - 1)
+        S = np.empty((n, m))
+        for t in range(first, n):
+            start = 0 if self.window is None else max(0, t - self.window + 1)
+            lo, hi = start + half, t - half
+            S[t] = self._estimate(ratio[lo:hi + 1], pos[lo:hi + 1], m) if hi >= lo else 1.0
+        S[:first] = S[first]
+        if len(_ROLLING_CACHE) >= _ROLLING_CACHE_MAX:
+            _ROLLING_CACHE.pop(next(iter(_ROLLING_CACHE)))
+        _ROLLING_CACHE[key] = S
+        return S
+
+    def concurrent_factors(self, y: pd.Series) -> np.ndarray:
+        """Index used to adjust each observation: S_t[position of t]."""
+        if self.m <= 1:
+            return np.ones(len(y))
+        S = self.origin_indices(y)
+        return S[np.arange(len(y)), season_positions(y.index, self.m)]
+
+    def forecast_factors(self, y: pd.Series, extended_index: pd.DatetimeIndex) -> np.ndarray:
+        """(n, H) array: index for target t+h when forecasting from origin t,
+        i.e. S_t[position of t+h]. `extended_index` = y's dates followed by
+        the next H dates."""
+        n = len(y)
+        H = len(extended_index) - n
+        if self.m <= 1:
+            return np.ones((n, H))
+        S = self.origin_indices(y)
+        pos = season_positions(extended_index, self.m)
+        rows = np.arange(n)
+        return np.stack([S[rows, pos[rows + h]] for h in range(1, H + 1)], axis=1)
+
     def factors(self, index: pd.DatetimeIndex) -> np.ndarray:
-        """Seasonal index for each date in `index` (works for future dates)."""
+        """The latest estimated indices for each date in `index` (fixed mode
+        use, and for display; works for future dates)."""
         if self.m <= 1:
             return np.ones(len(index))
         return self.indices_[season_positions(index, self.m)]
 
     def adjust(self, y: pd.Series) -> pd.Series:
-        """Remove seasonality: x_t = y_t / index."""
-        return y / self.factors(y.index)
+        """Remove seasonality: x_t = y_t / S_t[position of t]."""
+        return y / self.concurrent_factors(y)
 
     def readjust(self, x: pd.Series) -> pd.Series:
-        """Put seasonality back: y_t = x_t * index."""
+        """Put seasonality back (exact inverse of adjust for fixed mode).
+        In rolling mode the indices come from the data itself, so use
+        readjust_from(y, x)."""
         return x * self.factors(x.index)
+
+    def readjust_from(self, y: pd.Series, x: pd.Series) -> pd.Series:
+        """Inverse of adjust in either mode: x_t * S_t[position of t], where
+        the indices S_t are those estimated from the original series y."""
+        return x * self.concurrent_factors(y)
 
     def index_table(self, index: pd.DatetimeIndex) -> pd.Series:
         """Readable table of the indices, keyed by a label of each position."""

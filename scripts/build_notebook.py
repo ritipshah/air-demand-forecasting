@@ -82,7 +82,8 @@ pd.set_option("display.precision", 3)
 pd.set_option("display.width", 160)
 FIG = ROOT / "reports" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
-RES = ROOT / "results"
+RES = ROOT / "results"                    # v2: rolling seasonal indices (default)
+RES1 = RES / "v1_fixed_indices"           # v1: seasonal indices fixed from the training span
 
 # Palette: the proposed model in orange; the three main comparators in blue,
 # aqua and violet; the simple baselines in grey (told apart by line style).
@@ -247,6 +248,39 @@ ax.set_ylabel("seasonal index")
 ax.set_title("All 7 hubs: weekday index (last 26 weeks)", loc="left")
 ax.grid(axis="x", visible=False)
 save(fig, "02_weekday_pattern")
+""")
+
+md("""
+**Does the weekday pattern drift?** The models' default (v2) re-estimates these indices at every
+day, from the 26 weeks ending that day only. The heatmap shows those rolling indices for the
+combined series: red = busier than the weekly average, blue = quieter. If the pattern were
+stable, every row would be one flat colour.
+""")
+
+code("""
+from airdemand.seasonal import season_positions
+s, _ = load_series("ALL7")
+sa_roll = SeasonalAdjuster(7, window=26 * 7, mode="rolling")
+S = sa_roll.origin_indices(s)                      # row t = indices known on day t
+# Reorder columns Monday..Sunday using a known Monday in the data
+mon = s.index[s.index.dayofweek == 0][0]
+cols = season_positions(pd.date_range(mon, periods=7, freq="D"), 7)
+roll = pd.DataFrame(S[:, cols], index=s.index, columns=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+weekly = roll.iloc[27::7]                           # one row per week, after the warm-up
+fig, ax = plt.subplots(figsize=(12, 3.4))
+lim = np.abs(weekly.values - 1).max()
+im = ax.imshow(weekly.T.values, aspect="auto", cmap="RdBu_r", vmin=1 - lim, vmax=1 + lim,
+               extent=[mdates.date2num(weekly.index[0]), mdates.date2num(weekly.index[-1]), 6.5, -0.5])
+ax.xaxis_date(); ax.xaxis.set_major_locator(mdates.YearLocator()); ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+ax.set_yticks(range(7), weekly.columns); ax.grid(False)
+fig.colorbar(im, ax=ax, pad=0.01).set_label("seasonal index")
+ax.set_title("All 7 hubs: weekday indices re-estimated each day from the previous 26 weeks", loc="left")
+save(fig, "02b_rolling_weekday_indices")
+test_year = roll["2024-06-01":"2025-05-31"]
+drift = pd.DataFrame({"min in test year": test_year.min(), "max in test year": test_year.max(),
+                      "fixed (v1) value": roll.loc[pd.Timestamp("2024-05-31")]})
+drift["range"] = drift["max in test year"] - drift["min in test year"]
+display(drift.style.format("{:.3f}"))
 """)
 
 md("""
@@ -424,10 +458,21 @@ save(fig, "07_acf_pacf")
 md(r"""
 ## 7. Theory: from SES to AR-Holt
 
-**Seasonal adjustment first.** Holt's method has no seasonal term, so we model the seasonally
-adjusted series $x_t = y_t / s_{j(t)}$, where $s_j$ is the multiplicative index of season
-position $j$ (weekday or month): the **median** of $y_t / \text{CMA}_t$ over the trailing
-window, normalised to mean 1. Forecasts are multiplied back: $\hat y_{t+h} = \hat x_{t+h}\, s_{j(t+h)}$.
+**Seasonal adjustment first.** Holt's method has no seasonal term, so we model a seasonally
+adjusted series. The multiplicative index of season position $j$ (weekday or month) is the
+**median** of $y_t / \text{CMA}_t$ over a window, normalised to mean 1. Two versions are compared:
+
+* **v1 — fixed indices:** one index set $s_j$, estimated on the last 26 training weeks (all training
+  data for monthly series) and used for every later date:
+  $x_t = y_t / s_{j(t)}$, $\ \hat y_{t+h|t} = \hat x_{t+h|t}\, s_{j(t+h)}$.
+* **v2 — rolling indices (default):** the index set is re-estimated at **every** time step $t$ from
+  the 26 weeks ending at $t$ only (monthly: all data up to $t$), giving $S_{t,j}$. Observation $t$ is
+  adjusted with the indices known on day $t$, and a forecast made at origin $t$ is re-seasonalised
+  with the indices estimated at $t$:
+  $$x_t = y_t / S_{t,\,j(t)}, \qquad \hat y_{t+h|t} = \hat x_{t+h|t}\; S_{t,\,j(t+h)} .$$
+  No data after the origin is used (unit-tested), the same rule applies to every seasonally adjusted
+  model (SES, Holt, damped Holt, Trigg–Leach, AR-Holt), and at the first test origin v1 and v2
+  use identical indices. Holt–Winters and the naive models work on the raw series and are unaffected.
 
 ### 7.1 Simple exponential smoothing (SES)
 $$\ell_t = \alpha x_t + (1-\alpha)\,\ell_{t-1}, \qquad \hat x_{t+h|t} = \ell_t$$
@@ -604,10 +649,10 @@ md("""
   which matches the mean-reverting behaviour of daily traffic around a slowly changing level.
 * **β.** The trend smoothing is tiny: the daily trend changes slowly; most adaptation happens
   through the level.
-* **b ≈ 0 on some series.** When the training data contain no persistent shocks (Experiment B
-  trains on 14 calm months), the SSE gives no reason to raise α, and the optimiser sets b to
-  about 0. Adaptivity is *learnt from past shocks*; when there were none, AR-Holt falls back to
-  a robust damped Holt. This matters for the results in Section 12.
+* **b ≈ 0 on a few series** (counted above). There the one-step SSE gives no reason to raise α
+  under bias, so the optimiser switches adaptivity off and AR-Holt falls back to a robust damped
+  Holt. Adaptivity is *learnt from the training data*: a series whose history rewards a fast
+  reaction to one-sided errors gets a large b; one where it does not gets b ≈ 0.
 * **Annual data.** For the Australian series the optimum is α at its upper limit (each new year
   fully replaces the level) — the same answer as the textbook Holt fit — so AR-Holt has nothing
   to adapt.
@@ -855,10 +900,12 @@ intervals calibrated on the model's own empirical errors.
 md("""
 ## 12. Results (from `results/`, produced by `scripts/run_backtests.py`)
 
-Protocol: parameters and seasonal indices fitted once on the training span; states rolled
-forward through the test period with parameters fixed; forecasts from **every** daily origin
-for h = 1..H; metrics averaged over horizons. MASE is scaled by the in-sample seasonal-naive
-MAE. Lower is better for every metric except coverage (target: 0.80 and 0.95).
+Protocol: parameters fitted once on the training span; states rolled forward through the test
+period with parameters fixed; seasonal indices re-estimated at every origin from the 26 weeks
+before it (**v2, default** — all tables below); forecasts from **every** daily origin for
+h = 1..H; metrics averaged over horizons. MASE is scaled by the in-sample seasonal-naive MAE.
+Lower is better for every metric except coverage (target: 0.80 and 0.95). The earlier version
+with fixed seasonal indices (**v1**, `results/v1_fixed_indices/`) is compared in Section 12.8.
 
 ### 12.1 Experiment A — normal operations (test Jun 2024 → May 2025, H = 14)
 """)
@@ -988,7 +1035,123 @@ display(abl.set_index(["experiment", "variant"]).drop(columns="series")
                        "cov80": "{:.3f}", "cov95": "{:.3f}", "MAPE_h1": "{:.2f}", "MAPE_h7": "{:.2f}"}))
 """)
 
-md("### 12.8 Key findings (computed)")
+md("""
+### 12.8 Version comparison: fixed (v1) vs rolling (v2) seasonal indices
+In v1 the weekday indices were estimated once and frozen; we suspected this was the main reason
+Holt–Winters (whose seasonal pattern updates every day) won the normal year. v2 tests that
+hypothesis by re-estimating the indices at every origin. Everything else — parameters, protocol,
+hyperparameters — is identical, and the raw-series models (Naive, SeasonalNaive, Holt–Winters)
+are unchanged by construction. Negative change = v2 more accurate.
+""")
+
+code("""
+summ1 = pd.read_csv(RES1 / "metrics_summary.csv")
+dm1 = pd.read_csv(RES1 / "dm_tests.csv")
+abl1 = pd.read_csv(RES1 / "ablation.csv")
+
+def mape_of(table, exp, group):
+    d = table[table.experiment == exp]
+    if group == "mean of 7 airports":
+        return d[d.series.isin(config.AIRPORTS)].groupby("model").MAPE.mean()
+    return d[d.series == group].set_index("model").MAPE
+
+rows = []
+for exp, group in [("A", "ALL7"), ("A", "mean of 7 airports"), ("B", "ALL7"), ("B", "mean of 7 airports"),
+                   ("C1", "AirPassengers"), ("C2", "Australia")]:
+    v1, v2 = mape_of(summ1, exp, group), mape_of(summ, exp, group)
+    for m in order:
+        rows.append({"experiment": exp, "series": group, "model": m, "v1 fixed": v1[m], "v2 rolling": v2[m]})
+ver = pd.DataFrame(rows)
+ver["change"] = ver["v2 rolling"] - ver["v1 fixed"]
+wide = ver.pivot_table(index=["experiment", "series"], columns="model", values="change", sort=False)[order]
+display(Markdown("**Change in MAPE (percentage points), v2 − v1**"))
+display(wide.style.format("{:+.2f}").background_gradient(cmap="RdBu_r", vmin=-2.5, vmax=2.5, axis=None))
+
+def best_count(table, exp):
+    d = table[(table.experiment == exp) & table.series.isin(config.AIRPORTS)]
+    return d.loc[d.groupby("series").MAPE.idxmin()].model.value_counts()
+
+counts = pd.DataFrame({f"{e} {v}": best_count(t, e) for e in ["A", "B"] for v, t in [("v1", summ1), ("v2", summ)]}).reindex(order).fillna(0).astype(int)
+display(Markdown("**Number of airports (of 7) where each model is best**"))
+display(counts)
+
+def gap(table):
+    v = mape_of(table, "A", "ALL7")
+    return v["AR-Holt"] - v["HoltWinters"]
+
+def dm_verdict(d, h):
+    r = d[(d.experiment == "A") & (d.series == "ALL7") & (d.vs == "HoltWinters") & (d.h == h) & (d.loss == "squared")].iloc[0]
+    return f"{r.verdict} (DM {r.dm_stat:+.2f}, p = {r.p_value:.3f})"
+
+g1, g2 = gap(summ1), gap(summ)
+cov_rows = []
+for v, t in [("v1 fixed", summ1), ("v2 rolling", summ)]:
+    for exp in ["A", "B"]:
+        q = t[(t.experiment == exp) & (t.series == "ALL7") & (t.model.isin(["AR-Holt", "DampedHolt", "HoltWinters"]))].set_index("model")
+        for m in ["AR-Holt", "DampedHolt", "HoltWinters"]:
+            cov_rows.append({"version": v, "experiment": exp, "model": m, "cov80": q.loc[m, "cov80"],
+                             "cov95": q.loc[m, "cov95"], "winkler95": q.loc[m, "winkler95"]})
+display(Markdown("**Interval coverage and 95% Winkler score (lower = better), ALL7**"))
+display(pd.DataFrame(cov_rows).pivot_table(index=["experiment", "model"], columns="version", values=["cov80", "cov95", "winkler95"])
+        .style.format("{:.3f}").format("{:,.0f}", subset=["winkler95"]))
+
+adj_models = ["SES", "Holt", "DampedHolt", "TriggLeachHolt", "AR-Holt"]
+daily = ver[ver.experiment.isin(["A", "B"]) & ver.model.isin(adj_models)]
+abl_b1 = abl1.set_index(["experiment", "variant"]).MAPE
+abl_b2 = abl.set_index(["experiment", "variant"]).MAPE
+display(Markdown("\\n".join([
+    f"* Seasonally adjusted models improved in **{int((daily.change < 0).sum())} of {len(daily)}** daily comparisons "
+    f"(5 models × 2 experiments × 2 series groups); median change {daily.change.median():+.2f} points "
+    f"(Exp A {daily[daily.experiment == 'A'].change.median():+.2f}, Exp B {daily[daily.experiment == 'B'].change.median():+.2f}).",
+    f"* Exp A, ALL7: AR-Holt is {g1:+.2f} points behind Holt–Winters in v1 and {g2:+.2f} points in v2 — "
+    f"rolling indices close {100 * (1 - g2 / g1):.0f}% of the gap.",
+    f"* DM test AR-Holt vs Holt–Winters, Exp A ALL7, h=1: v1 — {dm_verdict(dm1, 1)}; v2 — {dm_verdict(dm, 1)}.",
+    f"* DM test AR-Holt vs Holt–Winters, Exp A ALL7, h=7: v1 — {dm_verdict(dm1, 7)}; v2 — {dm_verdict(dm, 7)}.",
+    f"* Ablation, Exp B (ALL7): v1 damped {abl_b1[('B','DampedHolt (neither)')]:.2f}% → full AR-Holt {abl_b1[('B','AR-Holt (full)')]:.2f}%; "
+    f"v2 damped {abl_b2[('B','DampedHolt (neither)')]:.2f}% → full AR-Holt {abl_b2[('B','AR-Holt (full)')]:.2f}%.",
+])))
+""")
+
+md("""
+**Interpretation.**
+* Re-estimating the indices helps the seasonally adjusted models almost everywhere, a little in the
+  normal year and much more during COVID, when the weekday mix itself changed (the heatmap in
+  Section 4.2). The improvement is shared by every adjusted model, so AR-Holt's lead over the other
+  Holt variants is not an artefact of the seasonal treatment.
+* **Our v1 explanation for the normal year was only partly right.** Rolling indices narrow the gap
+  to Holt–Winters but do not close it, and Holt–Winters remains significantly better by the DM test.
+  A plausible remaining reason is *how* the pattern is updated: Holt–Winters revises each weekday
+  factor every day with its own fitted smoothing weight, estimated jointly with level and trend,
+  while our indices are 26-week medians — robust, but slow to react.
+* **Not everything improved:** during COVID the 95% intervals of AR-Holt cover less often in v2 than
+  in v1 (table above). The check below shows why: the error scale σ is about the same in both
+  versions, but with rolling indices the standardised calibration errors are less spread out, so
+  the conformal quantiles — and the intervals — are narrower. For AR-Holt the tighter intervals
+  improve the Winkler score in the normal year and worsen it during the collapse (table above).
+* For monthly AirPassengers "rolling" means an expanding window (all data up to the origin); the
+  annual series has no seasonality and is unchanged.
+""")
+
+code("""
+# Why did AR-Holt's 95% coverage drop in Exp B? Compare interval width and its two ingredients.
+from airdemand.evaluation import backtest_model
+s, _ = load_series("ALL7")
+rows = []
+for exp, (tr, te, H) in {"A": ("2024-05-31", "2025-05-31", 14), "B": ("2020-02-29", "2020-12-31", 7)}.items():
+    for mode, label in [("fixed", "v1 fixed"), ("rolling", "v2 rolling")]:
+        m_ = AdaptiveRobustHolt(seasonal=mode).fit(s[:tr], freq="D")
+        fc_ = backtest_model(m_, s[:te], tr, H)
+        q_ = m_.quantiles(H)
+        p_ = m_.paths(s[:tr], 1)
+        rows.append({"experiment": exp, "version": label,
+                     "95% width / forecast": ((fc_.hi95 - fc_.lo95) / fc_["mean"]).mean(),
+                     "95% coverage": ((fc_.actual >= fc_.lo95) & (fc_.actual <= fc_.hi95)).mean(),
+                     "conformal quantile spread, h=1": q_[95][1][0] - q_[95][0][0],
+                     "median σ / level, last training year": np.median(p_["sigma"][-365:] / p_["x"][-365:])})
+display(pd.DataFrame(rows).set_index(["experiment", "version"]).style.format("{:.3f}"))
+""")
+
+md("### 12.9 Key findings (computed)")
 
 code("""
 def mape(exp, series, model):
@@ -1014,6 +1177,8 @@ for exp in ["C1", "C2"]:
 c95 = summ[(summ.series == "ALL7") & (summ.model == "AR-Holt")].set_index("experiment")
 lines.append(f"* **Interval coverage (AR-Holt, ALL7):** 80% intervals cover {c95.loc['A','cov80']:.1%} (A) / {c95.loc['B','cov80']:.1%} (B); "
              f"95% intervals cover {c95.loc['A','cov95']:.1%} (A) / {c95.loc['B','cov95']:.1%} (B).")
+lines.append(f"* **Seasonal indices:** all numbers above use rolling indices (v2). With fixed indices (v1) AR-Holt's MAPE on ALL7 was "
+             f"{mape_of(summ1, 'A', 'ALL7')['AR-Holt']:.2f}% (A) and {mape_of(summ1, 'B', 'ALL7')['AR-Holt']:.2f}% (B) — see 12.8.")
 display(Markdown("\\n".join(lines)))
 """)
 
@@ -1031,17 +1196,17 @@ md("""
   argument for AR-Holt.
 * **In normal operations (Exp A)** the adaptive machinery is mostly idle and AR-Holt performs
   like damped Holt. Holt–Winters (a fully seasonal model whose seasonal pattern keeps updating)
-  is the strongest model in the normal year, and is significantly better than AR-Holt by DM.
-  This is an honest negative result: our fixed weekday indices (estimated once on the last 26
-  training weeks) cannot follow the slow drift of the weekly pattern over a year, while
-  Holt–Winters updates it every day.
-* **Classic series:** on AirPassengers AR-Holt is close to the best models; on the annual
-  Australian series there is nothing to adapt to and AR-Holt is not competitive — with only 37
-  training years the conformal calibration also has few errors, so its intervals are too narrow.
+  is the strongest model in the normal year, and is significantly better than AR-Holt by DM —
+  an honest negative result. In v1 we blamed the frozen weekday indices; v2 re-estimates them at
+  every origin and narrows the gap, but Holt–Winters still wins (Section 12.8).
+* **Classic series:** on AirPassengers the seasonally adjusted Holt variants, AR-Holt included, are
+  close to or ahead of Holt–Winters; on the annual Australian series there is nothing to adapt to and
+  AR-Holt is not competitive — with only 37 training years the conformal calibration also has few
+  errors, so its intervals are too narrow.
 * **Intervals** are close to nominal coverage for the daily series in normal times — the conformal
-  calibration works. During COVID every model's 80% intervals under-cover (no method could
-  calibrate on a shock it had never seen), while the 95% intervals stay closer to nominal because
-  the error scale σ_t widens quickly once large errors arrive.
+  calibration works. During COVID every model under-covers (no method could calibrate on a shock it
+  had never seen); the 80% intervals miss clearly, the 95% intervals less so, and AR-Holt's 95%
+  coverage is lower with rolling indices than it was with fixed ones.
 """)
 
 # =============================================================================
@@ -1098,9 +1263,12 @@ md("""
    most individual airports, with significant one-step gains over all fixed-parameter smoothing
    benchmarks.
 3. In a normal year it behaves like damped Holt; the seasonal Holt–Winters benchmark is more
-   accurate there. AR-Holt's value is **insurance against shocks**, not a free lunch in calm times.
-4. Adaptivity and robustness are complementary: neither helps alone in the crisis.
-5. Locally-adaptive conformal intervals give near-nominal coverage in normal operations without
+   accurate there — with fixed (v1) and with rolling (v2) seasonal indices alike. AR-Holt's value is
+   **insurance against shocks**, not a free lunch in calm times.
+4. Re-estimating the weekday indices at every origin (v2) improves all seasonally adjusted models,
+   most of all during COVID, but explains only part of Holt–Winters' advantage in the normal year.
+5. Adaptivity and robustness are complementary: neither helps alone in the crisis.
+6. Locally-adaptive conformal intervals give near-nominal coverage in normal operations without
    any normality assumption.
 
 **Limitations.**
@@ -1108,8 +1276,9 @@ md("""
   rather than predicted; residuals remain autocorrelated and heavy-tailed.
 * **Parameters are not refitted online** — they are estimated once on the training span. Rolling
   re-estimation would let the model learn from a shock while it happens.
-* **Fixed seasonal indices** — the weekday pattern is estimated once and cannot drift (the main
-  reason Holt–Winters wins in the normal year).
+* **Slow seasonal updating** — even re-estimated at every origin (v2), the weekday indices are
+  26-week medians that react slowly; Holt–Winters' daily seasonal update still wins in the normal
+  year. Rolling indices also made AR-Holt's 95% intervals under-cover more during COVID.
 * A sudden step change costs AR-Holt the first 2–3 days, by design (Section 10.4).
 * TSA throughput counts screened departing passengers, not all travellers (no connecting
   passengers), and the staffing parameters are assumptions.
@@ -1118,7 +1287,9 @@ md("""
 * Holiday regressors (or holiday-specific seasonal indices) for the U.S. federal calendar.
 * A **hierarchical** airport → national model with forecast reconciliation, so ALL7 and the seven
   airport forecasts add up.
-* **Online re-estimation** of (a, b, β, φ) on a rolling window, and slowly updating seasonal indices.
+* **Online re-estimation** of (a, b, β, φ) on a rolling window.
+* An **exponentially weighted seasonal update inside AR-Holt** (as in Holt–Winters, with its own
+  fitted smoothing weight), replacing the 26-week median indices.
 * Learning the regime threshold τ from data, or a probabilistic regime model (Markov switching).
 """)
 

@@ -1,7 +1,9 @@
 """Rolling-origin backtests, accuracy metrics and the Diebold–Mariano test.
 
 Backtest protocol (realistic and fast):
-  * fit parameters ONCE on the training span (seasonal indices too),
+  * fit parameters ONCE on the training span,
+  * seasonal indices: fixed from the training span (v1) or re-estimated at
+    every origin from the 26 weeks before it (v2, default) — see seasonal.py,
   * roll the states forward through the test period with the parameters
     fixed (no refitting),
   * at every origin record forecasts for h = 1..H,
@@ -9,6 +11,8 @@ Backtest protocol (realistic and fast):
 """
 
 from __future__ import annotations
+
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -52,13 +56,15 @@ def backtest_model(model: BaseModel, y_full: pd.Series, train_end, H: int,
 
 
 def run_backtest(y: pd.Series, freq: str, train_end, test_end, H: int,
-                 models: dict | None = None) -> tuple[pd.DataFrame, dict]:
+                 models: dict | None = None, seasonal: str | None = None) -> tuple[pd.DataFrame, dict]:
     """Fit each model on y[:train_end] and backtest on (train_end, test_end].
 
     `models` maps a display name to a zero-argument factory (default: every
-    model in the registry). Returns (long forecast table, fitted models).
+    model in the registry, using `seasonal` = "rolling" / "fixed" indices,
+    or the config default when None). Returns (long forecast table, fitted
+    models).
     """
-    models = models or {name: cls for name, cls in MODELS.items()}
+    models = models or {name: partial(cls, seasonal=seasonal) for name, cls in MODELS.items()}
     y = y[:test_end]
     y_train = y[:train_end]
     frames, fitted = [], {}

@@ -77,8 +77,9 @@ def cached_upload(content: bytes) -> tuple[pd.Series, str]:
 
 
 @st.cache_data(show_spinner=False)
-def cached_results() -> dict:
-    r = config.RESULTS_DIR
+def cached_results(version: str = config.SEASONAL_MODE) -> dict:
+    """Backtest results: "rolling" = v2 (default, results/), "fixed" = v1."""
+    r = config.RESULTS_DIR if version == "rolling" else config.RESULTS_V1_DIR
     return {name: pd.read_csv(r / f"{name}.csv") for name in
             ("metrics_summary", "metrics_by_horizon", "dm_tests")}
 
@@ -308,13 +309,19 @@ with tabs[2]:
     if dataset == "Upload CSV":
         H = min(h_def, max(1, len(y) // 10))
         st.caption(f"Live backtest: parameters fitted on the first 80% of your data, forecasts for h = 1..{H} "
-                   f"from every origin in the last 20%.")
+                   f"from every origin in the last 20%, seasonal indices re-estimated at every origin (v2).")
         with st.spinner("Running a quick backtest of all models…"):
             summary, by_h, dm, train_end = live_backtest(series_key + start_key, y, freq, H)
         lead = summary.set_index("model")[cols].loc[config.MODEL_ORDER]
         dm_view = dm
     else:
-        res = cached_results()
+        version = st.radio("Seasonal indices", list(config.SEASONAL_MODES), format_func=config.SEASONAL_MODES.get,
+                           horizontal=True,
+                           help="v2 (default): weekday/month indices re-estimated at every forecast origin from the "
+                                "26 weeks before it. v1: indices estimated once on the training data and kept fixed. "
+                                "Only the seasonally adjusted models (SES, Holt, DampedHolt, TriggLeachHolt, AR-Holt) "
+                                "differ between the two.")
+        res = cached_results(version)
         exps = {"A": "A — normal operations (Jun 2024 → May 2025)", "B": "B — COVID stress test (Mar → Dec 2020)"} \
             if is_tsa else ({"C1": "C1 — AirPassengers, test 1958–1960"} if dataset == "AirPassengers"
                             else {"C2": "C2 — Australia, test 2007–2016"})
@@ -326,7 +333,9 @@ with tabs[2]:
         d = res["dm_tests"]
         dm_view = d[(d.experiment == exp) & (d.series == dataset)]
         st.caption("Pre-computed by `scripts/run_backtests.py`: parameters fitted once on the training span, "
-                   "states rolled forward with parameters fixed, forecasts from every origin; metrics averaged over horizons. "
+                   "states rolled forward with parameters fixed, seasonal indices "
+                   + ("re-estimated at every origin" if version == "rolling" else "fixed from the training span")
+                   + ", forecasts from every origin; metrics averaged over horizons. "
                    "This experiment uses the full training span, not the sidebar start date.")
 
     st.markdown("**Leaderboard** — best value per column highlighted (coverage: closest to 0.80 / 0.95)")
@@ -500,7 +509,8 @@ with tabs[5]:
         "version of Holt's linear trend method. It combines the tracking signal (Trigg & Leach 1967), "
         "smooth-transition smoothing (Taylor 2004), robust Huber-type cleaning (Gelper, Fried & Croux 2010) "
         "and the damped trend (Gardner & McKenzie 1985). Seasonality is removed first with multiplicative "
-        "indices and put back afterwards.")
+        "indices and put back afterwards; by default (v2) the indices are re-estimated at every forecast "
+        "origin from the 26 weeks before it, so the weekday pattern can drift.")
     st.markdown("**The AR-Holt update, every time step**")
     st.latex(r"\hat x_t=\ell_{t-1}+\phi b_{t-1},\qquad e_t=x_t-\hat x_t")
     st.latex(r"\tilde e_t=\begin{cases}e_t & |TS_{t-1}|\ge\tau\ \text{(shock)}\\ "

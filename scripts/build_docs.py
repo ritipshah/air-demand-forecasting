@@ -32,55 +32,125 @@ def replace_block(path: Path, tag: str, body: str) -> None:
     path.write_text(pattern.sub(lambda m: m.group(1) + body.rstrip() + "\n" + m.group(2), text))
 
 
-def results_table() -> str:
-    s = pd.read_csv(config.RESULTS_DIR / "metrics_summary.csv")
+SPECS = [("A", "ALL7", "A · normal year · All 7 hubs"),
+         ("A", "airports", "A · normal year · mean of 7 airports"),
+         ("B", "ALL7", "B · COVID · All 7 hubs"),
+         ("B", "airports", "B · COVID · mean of 7 airports"),
+         ("C1", "AirPassengers", "C1 · AirPassengers (monthly)"),
+         ("C2", "Australia", "C2 · Australia (annual)")]
+
+
+def load(version: str) -> pd.DataFrame:
+    folder = config.RESULTS_DIR if version == "rolling" else config.RESULTS_V1_DIR
+    return pd.read_csv(folder / "metrics_summary.csv")
+
+
+def mape_row(s: pd.DataFrame, exp: str, series: str) -> pd.Series:
+    d = s[s.experiment == exp]
+    if series == "airports":
+        return d[d.series.isin(config.AIRPORTS)].groupby("model").MAPE.mean().reindex(ORDER)
+    return d[d.series == series].set_index("model").MAPE.reindex(ORDER)
+
+
+def results_table(version: str) -> str:
+    s = load(version)
     rows = []
-    specs = [("A", "ALL7", "A · normal year · All 7 hubs"),
-             ("A", "airports", "A · normal year · mean of 7 airports"),
-             ("B", "ALL7", "B · COVID · All 7 hubs"),
-             ("B", "airports", "B · COVID · mean of 7 airports"),
-             ("C1", "AirPassengers", "C1 · AirPassengers (monthly)"),
-             ("C2", "Australia", "C2 · Australia (annual)")]
-    for exp, series, label in specs:
-        d = s[s.experiment == exp]
-        if series == "airports":
-            v = d[d.series.isin(config.AIRPORTS)].groupby("model").MAPE.mean()
-        else:
-            v = d[d.series == series].set_index("model").MAPE
-        v = v.reindex(ORDER)
+    for exp, series, label in SPECS:
+        v = mape_row(s, exp, series)
         best = v.idxmin()
         cells = [f"**{v[m]:.2f}**" if m == best else f"{v[m]:.2f}" for m in ORDER]
         rows.append(f"| {label} | " + " | ".join(cells) + " |")
     head = "| Experiment | " + " | ".join(ORDER) + " |\n|---|" + "---:|" * len(ORDER)
-    note = ("\n\nMean MAPE (%) over all horizons; **bold** = best in row. Generated from "
-            "`results/metrics_summary.csv` by `scripts/build_docs.py`.")
-    return head + "\n" + "\n".join(rows) + note
+    return head + "\n" + "\n".join(rows)
+
+
+def results_block() -> str:
+    folder_v1 = config.RESULTS_V1_DIR.relative_to(ROOT)
+    return (
+        "**v2 — rolling seasonal indices (default).** The weekday indices are re-estimated at every "
+        "forecast origin from the 26 weeks before it (monthly: all data up to the origin).\n\n"
+        + results_table("rolling")
+        + "\n\n**v1 — fixed seasonal indices** (estimated once on the training span; kept in "
+        f"`{folder_v1}/`).\n\n"
+        + results_table("fixed")
+        + "\n\nMean MAPE (%) over all horizons; **bold** = best in row. Naive, SeasonalNaive and "
+        "Holt–Winters work on the raw series, so they are identical in both versions. Generated from "
+        "`results/` by `scripts/build_docs.py`.\n\n"
+        + version_changes()
+    )
+
+
+def wins(s: pd.DataFrame, exp: str, model: str = "AR-Holt") -> int:
+    d = s[(s.experiment == exp) & s.series.isin(config.AIRPORTS)]
+    best = d.loc[d.groupby("series").MAPE.idxmin()]
+    return int((best.model == model).sum())
+
+
+def version_changes() -> str:
+    s1, s2 = load("fixed"), load("rolling")
+    adj = ["SES", "Holt", "DampedHolt", "TriggLeachHolt", "AR-Holt"]
+    changes = []
+    for exp in ("A", "B"):
+        for series in ("ALL7", "airports"):
+            d = mape_row(s2, exp, series)[adj] - mape_row(s1, exp, series)[adj]
+            changes.extend(d.tolist())
+    changes = np.array(changes)
+    gap1 = mape_row(s1, "A", "ALL7")["AR-Holt"] - mape_row(s1, "A", "ALL7")["HoltWinters"]
+    gap2 = mape_row(s2, "A", "ALL7")["AR-Holt"] - mape_row(s2, "A", "ALL7")["HoltWinters"]
+    cov = {v: t[(t.experiment == "B") & (t.series == "ALL7") & (t.model == "AR-Holt")].iloc[0]
+           for v, t in (("v1", s1), ("v2", s2))}
+    dm = pd.read_csv(config.RESULTS_DIR / "dm_tests.csv")
+    r = dm[(dm.experiment == "A") & (dm.series == "ALL7") & (dm.vs == "HoltWinters") & (dm.h == 1)
+           & (dm.loss == "squared")].iloc[0]
+    c1 = {v: mape_row(t, "C1", "AirPassengers") for v, t in (("v1", s1), ("v2", s2))}
+    return "\n".join([
+        "**What changed from v1 to v2 (computed):**",
+        "",
+        f"* The seasonally adjusted models got more accurate in {int((changes < 0).sum())} of {len(changes)} "
+        f"daily comparisons (5 models × 2 experiments × 2 series groups). The median change was "
+        f"{np.median(changes):+.2f} MAPE points, with larger gains during COVID.",
+        f"* During COVID, AR-Holt is best at {wins(s2, 'B')} of 7 airports with rolling indices, against "
+        f"{wins(s1, 'B')} of 7 with fixed indices.",
+        f"* **Normal year:** Holt–Winters still wins. On All 7 hubs, AR-Holt trails it by {gap1:.2f} points "
+        f"(v1) and {gap2:.2f} points (v2), so rolling indices close {100 * (1 - gap2 / gap1):.0f}% of the "
+        f"gap. The DM test (h=1) still finds \"{r.verdict}\" (p = {r.p_value:.3f}). Fixed indices "
+        "therefore explain only part of Holt–Winters' advantage.",
+        f"* **Worse in v2:** during COVID, AR-Holt's 95% intervals on All 7 hubs cover "
+        f"{cov['v2'].cov95:.1%} of outcomes, down from {cov['v1'].cov95:.1%} in v1. Its 95% Winkler score "
+        f"rises from {cov['v1'].winkler95:,.0f} to {cov['v2'].winkler95:,.0f}, because the intervals are "
+        "narrower.",
+        f"* On AirPassengers (an expanding window for monthly data), AR-Holt goes from "
+        f"{c1['v1']['AR-Holt']:.2f}% to {c1['v2']['AR-Holt']:.2f}%, and the best model is now "
+        f"{c1['v2'].idxmin()} (v1: {c1['v1'].idxmin()}). The annual series has no seasonality and is "
+        "unchanged.",
+    ])
 
 
 def key_numbers() -> str:
-    s = pd.read_csv(config.RESULTS_DIR / "metrics_summary.csv")
+    s = load("rolling")
+    s1 = load("fixed")
     abl = pd.read_csv(config.RESULTS_DIR / "ablation.csv").set_index(["experiment", "variant"]).MAPE
 
-    def mape(e, ser, m):
-        return s[(s.experiment == e) & (s.series == ser) & (s.model == m)].MAPE.iloc[0]
+    def mape(t, e, ser, m):
+        return t[(t.experiment == e) & (t.series == ser) & (t.model == m)].MAPE.iloc[0]
 
-    def wins(e):
-        d = s[(s.experiment == e) & s.series.isin(config.AIRPORTS)]
-        best = d.loc[d.groupby("series").MAPE.idxmin()]
-        return int((best.model == "AR-Holt").sum())
-
-    b_ar, b_holt, b_dh = mape("B", "ALL7", "AR-Holt"), mape("B", "ALL7", "Holt"), mape("B", "ALL7", "DampedHolt")
-    a_ar, a_hw = mape("A", "ALL7", "AR-Holt"), mape("A", "ALL7", "HoltWinters")
+    b_ar, b_holt, b_dh = mape(s, "B", "ALL7", "AR-Holt"), mape(s, "B", "ALL7", "Holt"), mape(s, "B", "ALL7", "DampedHolt")
+    a_ar, a_hw = mape(s, "A", "ALL7", "AR-Holt"), mape(s, "A", "ALL7", "HoltWinters")
     return "\n".join([
-        f"* **COVID stress test (All 7 hubs):** AR-Holt MAPE {b_ar:.1f}% vs classic Holt {b_holt:.1f}% "
-        f"({100 * (1 - b_ar / b_holt):.0f}% lower) and damped Holt {b_dh:.1f}%; best model at "
-        f"{wins('B')} of 7 airports.",
-        f"* **Normal year (All 7 hubs):** AR-Holt {a_ar:.2f}% vs Holt–Winters {a_hw:.2f}% — the seasonal "
-        f"benchmark wins in calm times (AR-Holt best at {wins('A')} of 7 airports).",
-        f"* **Ablation (COVID):** damped Holt {abl[('B', 'DampedHolt (neither)')]:.1f}% → robust only "
-        f"{abl[('B', 'AR-Holt, b=0 (robust only)')]:.1f}% → adaptive only "
-        f"{abl[('B', 'AR-Holt, k=inf (adaptive only)')]:.1f}% → full AR-Holt "
-        f"{abl[('B', 'AR-Holt (full)')]:.1f}%: the two ingredients only pay off together.",
+        "Default version (v2, rolling seasonal indices):",
+        "",
+        f"* **COVID stress test (All 7 hubs):** AR-Holt MAPE {b_ar:.1f}%, against {b_holt:.1f}% for "
+        f"classic Holt ({100 * (1 - b_ar / b_holt):.0f}% lower) and {b_dh:.1f}% for damped Holt. It is the "
+        f"best model at {wins(s, 'B')} of 7 airports.",
+        f"* **Normal year (All 7 hubs):** AR-Holt {a_ar:.2f}% against {a_hw:.2f}% for Holt–Winters. The "
+        f"seasonal benchmark wins in calm times; AR-Holt is best at {wins(s, 'A')} of 7 airports.",
+        f"* **Ablation (COVID):** damped Holt {abl[('B', 'DampedHolt (neither)')]:.1f}%, robust only "
+        f"{abl[('B', 'AR-Holt, b=0 (robust only)')]:.1f}%, adaptive only "
+        f"{abl[('B', 'AR-Holt, k=inf (adaptive only)')]:.1f}%, full AR-Holt "
+        f"{abl[('B', 'AR-Holt (full)')]:.1f}%. The two ingredients only pay off together.",
+        f"* **Compared with v1 (fixed indices):** AR-Holt on All 7 hubs was "
+        f"{mape(s1, 'A', 'ALL7', 'AR-Holt'):.2f}% (normal year) and {mape(s1, 'B', 'ALL7', 'AR-Holt'):.1f}% "
+        f"(COVID) in v1, and is {a_ar:.2f}% and {b_ar:.1f}% in v2.",
     ])
 
 
@@ -135,10 +205,11 @@ single unusual day, which would have spoiled the next days' forecasts."""
 
 def main() -> None:
     readme, viva = ROOT / "README.md", ROOT / "VIVA_NOTES.md"
-    replace_block(readme, "RESULTS", results_table())
+    replace_block(readme, "RESULTS", results_block())
     replace_block(readme, "KEYNUMBERS", key_numbers())
     replace_block(viva, "KEYNUMBERS", key_numbers())
     replace_block(viva, "WORKED", worked_example())
+    replace_block(viva, "VERSIONS", version_changes())
     print("README.md and VIVA_NOTES.md updated")
 
 
